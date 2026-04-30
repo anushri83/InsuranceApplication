@@ -7,14 +7,25 @@ namespace Insurance.Infrastructure.Repositories;
 
 public class PolicyRepository : IPolicyRepository
 {
+
     private readonly AppDbContext _context;
-    public PolicyRepository(AppDbContext context) => _context = context;
+
+    public PolicyRepository(AppDbContext context)
+    {
+        _context = context;
+    }
+
+
 
     public async Task<IEnumerable<Policy>> GetAllPoliciesAsync()
-        => await _context.Policies.ToListAsync();
+    {
+        return await _context.Policies.ToListAsync();
 
+    }
     public async Task<Policy> GetPolicyByIdAsync(int id)
-        => await _context.Policies.FindAsync(id);
+    {
+        return await _context.Policies.FindAsync(id);
+    }
 
     public async Task AddPolicyAsync(Policy policy)
     {

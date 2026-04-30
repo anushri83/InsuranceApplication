@@ -3,9 +3,9 @@
 /// <summary>
 /// Summary description for Class1
 /// </summary>
-public class Class1
+public class PolicyControlle
 {
-	public Class1()
+	public PolicyControlle()
 	{
 		//
 		// TODO: Add constructor logic here

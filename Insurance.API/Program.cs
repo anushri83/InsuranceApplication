@@ -1,6 +1,10 @@
 using Insurance.Infrastructure.Data; // Access to your DB Context
 using Insurance.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Insurance.Domain.Interfaces;
+using Insurance.Infrastructure.Repositories;
+using Insurance.Application.Interfaces;
+using Insurance.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,17 +22,22 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
 
 // 3. Register your Application Services (Dependency Injection)
-// Example: builder.Services.AddScoped<IPolicyService, PolicyService>();
+Example: builder.Services.AddScoped<IPolicyService, PolicyService>();
 
-var app = builder.Build();
+
 
 // --- STEP B: Configure the HTTP Pipeline ---
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    // If you want the Swagger UI page, you usually add app.UseSwaggerUI() here
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

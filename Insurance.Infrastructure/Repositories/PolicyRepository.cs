@@ -4,6 +4,7 @@ using Insurance.Domain.Interfaces;
 using Insurance.Domain.Models;
 using Insurance.Infrastructure.Data;
 
+namespace Insurance.Infrastructure.Repositories;
 public class PolicyRepository : IPolicyRepository
 {
     private readonly AppDbContext _context;

@@ -15,13 +15,19 @@ namespace Insurance.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<User?> GetUserByIdAsync(int Id)
+        {
+            // Simply return the user or null. Let the caller handle the "NotFound" logic.
+            return await _context.Users.FirstOrDefaultAsync(e => e.Id == Id);
+        }
+
         public async Task<User?> GetUserByEmailAsync(string email)
         {
             // Simply return the user or null. Let the caller handle the "NotFound" logic.
             return await _context.Users.FirstOrDefaultAsync(e => e.Email == email);
         }
 
-        public async Task AddUser(User user)
+        public async Task AddUserAsync(User user)
         {
             try
             {
@@ -34,7 +40,7 @@ namespace Insurance.Infrastructure.Repositories
             }
         }
 
-        public async Task UpdateUser(User user)
+        public async Task UpdateUserAsync(User user)
         {
             try
             {
@@ -43,16 +49,24 @@ namespace Insurance.Infrastructure.Repositories
             }
             catch (DbUpdateException ex) // More specific error for Database issues
             {
-                throw new Exception("Error saving user to the database.", ex);
+                throw new Exception("Error updating user to the database.", ex);
             }
             
         }
 
-        public async Task DeleteUser(User user)
+        public async Task DeleteUserAsync(User user)
         {
-            // You MUST call Remove before SaveChanges
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            try
+            {
+                // You MUST call Remove before SaveChanges
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex) // More specific error for Database issues
+            {
+                throw new Exception("Error deleting user from the database.", ex);
+            }
+            
         }
     }
 }

@@ -20,6 +20,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
+builder.Services.AddScoped<IPolicyService, PolicyService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // 3. Register your Application Services (Dependency Injection)
 Example: builder.Services.AddScoped<IPolicyService, PolicyService>();

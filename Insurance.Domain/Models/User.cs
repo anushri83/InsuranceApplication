@@ -17,6 +17,7 @@ namespace Insurance.Domain.Models // <--- ADD THIS LINE
         public string Email { get; set; }
 
         [Required]
+        [MinLength(8)]
         public string PasswordHash { get; set; }
 
         [Required]
@@ -40,6 +41,7 @@ namespace Insurance.Domain.Models // <--- ADD THIS LINE
         public string State { get; set; }
 
         [Required]
+        [StringLength(5)]
         public string Pincode { get; set; }
 
         [Required]

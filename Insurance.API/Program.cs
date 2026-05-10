@@ -31,13 +31,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICustomerPolicyRepository, CustomerPolicyRepository>();
+builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
 
 
 // 4. Register your Application Services (Dependency Injection)
 builder.Services.AddScoped<IPolicyService, PolicyService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICustomerPolicyService, CustomerPolicyService>();
-
+builder.Services.AddScoped<IClaimService, ClaimService>();
 
 // --- STEP B: Configure the HTTP Pipeline ---
 

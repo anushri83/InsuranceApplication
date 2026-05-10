@@ -1,11 +1,12 @@
-﻿
-using Insurance.Domain.Models;
+﻿using Insurance.Domain.Models;
 
 namespace Insurance.Domain.Interfaces;
 
 public interface IPolicyRepository
 {
-    Task<IEnumerable<Policy>> GetAllPoliciesAsync();
-    Task<Policy> GetPolicyByIdAsync(int id);
+    Task<IEnumerable<Policy>> GetAllPolicyAsync();
+    Task<Policy> GetPolicyByPolicyIdAsync(int PolicyId);
     Task AddPolicyAsync(Policy policy);
+    Task UpdatePolicyAsync(Policy policy);
+    Task DeletePolicyAsync(int PolicyId);
 }

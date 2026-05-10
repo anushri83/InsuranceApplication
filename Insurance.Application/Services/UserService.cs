@@ -14,12 +14,12 @@ namespace Insurance.Application.Services
             _userRepository = userRepository;
         }
 
-        public async Task<User> GetUserByIdAsync(int Id)
+        public async Task<User> GetUserByIdAsync(int UserId)
         {
-            var user = await _userRepository.GetUserByIdAsync(Id);
+            var user = await _userRepository.GetUserByIdAsync(UserId);
             if (user == null)
             { 
-                throw new KeyNotFoundException($"User with ID {Id} not found.");
+                throw new KeyNotFoundException($"User with ID {UserId} not found.");
             }
             return user;
         }
@@ -61,10 +61,10 @@ namespace Insurance.Application.Services
 
         public async Task UpdateUserAsync(User user)
         {
-            User userExists = await _userRepository.GetUserByIdAsync(user.Id);
+            User userExists = await _userRepository.GetUserByIdAsync(user.UserId);
             if (userExists == null)
             {
-                throw new KeyNotFoundException($"User with ID {user.Id} not found.");
+                throw new KeyNotFoundException($"User with ID {user.UserId} not found.");
             }
             user.UpdatedAt = DateTime.Now;
             await _userRepository.UpdateUserAsync(user);
@@ -72,10 +72,10 @@ namespace Insurance.Application.Services
 
         public async Task DeleteUserAsync(User user)
         {
-            User userExists = await _userRepository.GetUserByIdAsync(user.Id);
+            User userExists = await _userRepository.GetUserByIdAsync(user.UserId);
             if (userExists == null)
             {
-                throw new KeyNotFoundException($"User with ID {user.Id} not found.");
+                throw new KeyNotFoundException($"User with ID {user.UserId} not found.");
             }
             await _userRepository.DeleteUserAsync(user);
         }

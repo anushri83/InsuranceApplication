@@ -4,9 +4,9 @@ namespace Insurance.Domain.Interfaces
 {
     public interface IUserRepository
     {
-       public Task<User> GetUserByIdAsync(int Id);
+        public Task<User?> GetUserByIdAsync(int UserId);
 
-        public Task<User> GetUserByEmailAsync(string email);
+        public Task<User?> GetUserByEmailAsync(string email);
 
         public Task AddUserAsync(User user);
 

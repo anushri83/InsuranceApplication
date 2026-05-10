@@ -8,9 +8,12 @@ namespace Insurance.Infrastructure.Repositories;
 public class PolicyRepository : IPolicyRepository
 {
     private readonly AppDbContext _context;
-    public PolicyRepository(AppDbContext context) => _context = context;
+    public PolicyRepository(AppDbContext context) 
+    {
+        _context = context; 
+    }
 
-    public async Task<IEnumerable<Policy>> GetAllAsync()
+    public async Task<IEnumerable<Policy>> GetAllPolicyAsync()
     {
         try
         {
@@ -23,22 +26,20 @@ public class PolicyRepository : IPolicyRepository
         }
     }
 
-    public async Task<Policy> GetByIdAsync(int id)
+
+    public async Task<Policy?> GetPolicyByPolicyIdAsync(int policyId)
     {
-        // FindAsync is usually safe, but we catch nulls in the Service layer
-        if (id < 0)
+        try
         {
-            throw new ArgumentException("Policy ID cannot be negative.");
+            return await _context.Policies.FindAsync(policyId);
         }
-        var policy =await _context.Policies.FindAsync(id);
-        if (policy == null) 
+        catch (SqlException ex)
         {
-            throw new Exception("Policy not found."); // Let the Service layer handle this as a "not found" case
+            throw new Exception("Database error while retrieving policy.", ex);
         }
-        return policy;
     }
 
-    public async Task AddAsync(Policy policy)
+    public async Task AddPolicyAsync(Policy policy)
     {
         try
         {
@@ -58,18 +59,38 @@ public class PolicyRepository : IPolicyRepository
         }
     }
 
-    public Task<IEnumerable<Policy>> GetAllPoliciesAsync()
+    public async Task UpdatePolicyAsync(Policy policy)
     {
-        throw new NotImplementedException();
+        try
+        {
+            _context.Policies.Update(policy);
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new InvalidOperationException("Could not save policy. Please check if the data violates database rules.", ex);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("An unexpected error occurred while saving the policy.", ex);
+        }
     }
 
-    public Task<Policy> GetPolicyByIdAsync(int id)
+    public async Task DeletePolicyAsync(int PolicyId)
     {
-        throw new NotImplementedException();
-    }
+        try
+        {
+            var policy = await _context.Policies.FindAsync(PolicyId);
+            if (policy != null)
+            {
+                _context.Policies.Remove(policy);
+                await _context.SaveChangesAsync();
+            }
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new InvalidOperationException("Could not delete policy. Please check if the data violates database rules.", ex);
+        }
 
-    public Task AddPolicyAsync(Policy policy)
-    {
-        throw new NotImplementedException();
     }
-}
+ }

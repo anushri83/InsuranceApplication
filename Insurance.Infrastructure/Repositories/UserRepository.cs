@@ -15,10 +15,10 @@ namespace Insurance.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<User?> GetUserByIdAsync(int Id)
+        public async Task<User?> GetUserByIdAsync(int UserId)
         {
             // Simply return the user or null. Let the caller handle the "NotFound" logic.
-            return await _context.Users.FirstOrDefaultAsync(e => e.Id == Id);
+            return await _context.Users.FirstOrDefaultAsync(e => e.UserId == UserId);
         }
 
         public async Task<User?> GetUserByEmailAsync(string email)

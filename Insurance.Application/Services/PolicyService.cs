@@ -12,11 +12,11 @@ public class PolicyService : IPolicyService
 		_repository = repository;
 	}
 
-    public async Task<IEnumerable<Policy>> GetPoliciesAsync()
+    public async Task<IEnumerable<Policy>> GetAllPolicyAsync()
     {
         try
         {
-            var policies = await _repository.GetAllPoliciesAsync();
+            var policies = await _repository.GetAllPolicyAsync();
 
             // If the list is empty, that's not a crash, but we can handle it
             if (policies == null || !policies.Any())
@@ -29,36 +29,85 @@ public class PolicyService : IPolicyService
 
         catch (Exception ex)
         {
-            throw;
+            throw new Exception("Error occured at service layer", ex); 
         }
     }
 
-    public async Task<Policy> GetPolicyByIdAsync(int id)
+    public async Task<Policy> GetPolicyByPolicyIdAsync(int PolicyId)
     {
-
-        if (id < 0)
+        try 
         {
-            throw new ArgumentException("Id Invalid");
+            if (PolicyId < 0)
+            { 
+                throw new ArgumentException("Id Invalid");
+            }
+            var policy = await _repository.GetPolicyByPolicyIdAsync(PolicyId);
+            if (policy == null)
+            {
+                throw new KeyNotFoundException($"No policy with ID {PolicyId}");
+            }
+            return policy;
         }
-        var policy = await _repository.GetPolicyByIdAsync(id);
-
-        if (policy == null)
+        catch (Exception)
         {
-            throw new KeyNotFoundException($"No policy with {id}");
+            throw new Exception("Error occured at service layer");
         }
-        return policy;
+
     }
-
     public async Task AddPolicyAsync(Policy policy)
     {
-        if (policy == null)
+        try
         {
-            throw new ArgumentNullException(nameof(policy), "Policy data cannot be null.");
+            if (policy == null)
+            {
+                throw new ArgumentNullException(nameof(policy), "Policy data cannot be null.");
+            }
+            if (policy.PremiumAmount <= 0)
+            {
+                throw new Exception("Premium Amount cannot be 0");
+            }
+            await _repository.AddPolicyAsync(policy);
         }
-        if (policy.PremiumAmount <= 0)
+        catch (Exception)
         {
-            throw new Exception("Premium Amount cannot be 0");
+            throw new Exception("Error occured at service layer");
         }
-        await _repository.AddPolicyAsync(policy);
+        
+    }
+
+    public async Task UpdatePolicyAsync(Policy policy)
+    {
+        try
+        {
+            if (policy == null)
+            {
+                throw new ArgumentNullException(nameof(policy), "Policy data cannot be null.");
+            }
+            if (policy.PremiumAmount <= 0)
+            {
+                throw new Exception("Premium Amount cannot be 0");
+            }
+            await _repository.UpdatePolicyAsync(policy);
+        }
+        catch (Exception)
+        {
+            throw new Exception("Error occured at service layer");
+        }
+    }
+
+    public async Task DeletePolicyAsync(int PolicyId)
+    {
+        try
+        {
+            if (PolicyId <= 0)
+            {
+                throw new Exception("PolicyId cannot be less than 0");
+            }
+            await _repository.DeletePolicyAsync(PolicyId);
+        }
+        catch (Exception)
+        {
+            throw new Exception("Error occured at service layer");
+        }
     }
 }

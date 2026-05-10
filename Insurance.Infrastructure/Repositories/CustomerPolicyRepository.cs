@@ -1,0 +1,109 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient; // Needed for SqlException
+using Insurance.Domain.Interfaces;
+using Insurance.Domain.Models;
+using Insurance.Infrastructure.Data;
+
+namespace Insurance.Infrastructure.Repositories
+{
+    public class CustomerPolicyRepository : ICustomerPolicyRepository
+    {
+        private readonly AppDbContext _context;
+
+        public CustomerPolicyRepository(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<IEnumerable<CustomerPolicy>> GetAllCustomerPoliciesAsync()
+        {
+            try
+            {
+                 return await _context.CustomerPolicies.Include(cp => cp.User).Include(cp=> cp.Policy).ToListAsync();
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("An error occurred while retrieving customer policies.", ex);
+            }
+        }
+
+        public async Task<CustomerPolicy> GetCustomerPolicyByIdAsync(int customerPolicyId)
+        {
+            try
+            {
+                // Use FirstOrDefaultAsync instead of FindAsync when using Include
+                return await _context.CustomerPolicies.Include(cp => cp.User).Include(cp => cp.Policy)
+                    .FirstOrDefaultAsync(cp => cp.CustomerPolicyId == customerPolicyId);
+
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Database error while retrieving customer policy.", ex);
+            }
+        }
+
+        public async Task<IEnumerable<CustomerPolicy>> GetByUserIdAsync(int userId)
+        {
+            try
+            {
+                return await _context.CustomerPolicies.Include(cp => cp.User).Include(cp => cp.Policy)
+                    .Where(cp => cp.UserId == userId).ToListAsync();
+
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Database error while retrieving customer policy.", ex);
+            }
+
+        }
+
+        public async Task AddCustomerPolicyAsync(CustomerPolicy customerPolicy)
+        {
+            try
+            {
+                await _context.CustomerPolicies.AddAsync(customerPolicy);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new InvalidOperationException("Could not save policy. Please check if the data violates database rules.", ex);
+            }
+               
+        }
+
+        public async Task UpdateCustomerPolicyAsync(CustomerPolicy customerPolicy)
+        {
+            try
+            {
+                _context.CustomerPolicies.Update(customerPolicy);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new InvalidOperationException("Could not update policy. Please check if the data violates database rules.", ex);
+            }
+            
+        }
+
+        public async Task DeleteCustomerPolicyAsync(int customerPolicyId)
+        {
+            var customerpolicy = await GetCustomerPolicyByIdAsync(customerPolicyId);
+            if (customerpolicy != null)
+            {
+                try
+                {
+                    _context.CustomerPolicies.Remove(customerpolicy);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    throw new InvalidOperationException("Could not delete policy. Please check if the data violates database rules.", ex);
+                }
+               
+            }
+
+        }
+
+
+    }
+}

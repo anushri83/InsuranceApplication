@@ -21,7 +21,7 @@ public class PolicyController : ControllerBase
     {
         try
         {
-            var policies = await _policyService.GetPoliciesAsync();
+            var policies = await _policyService.GetAllPolicyAsync();
             return Ok(policies); // Returns HTTP 200 with the data
         }
         catch (Exception ex)
@@ -32,11 +32,11 @@ public class PolicyController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetPolicyByIdAsync(int id)
+    public async Task<IActionResult> GetPolicyByPolicyIdAsync(int PolicyId)
     {
         try
         {
-            var policy = await _policyService.GetPolicyByIdAsync(id);
+            var policy = await _policyService.GetPolicyByPolicyIdAsync(PolicyId);
             return Ok(policy);
         }
         catch (Exception ex)
@@ -56,7 +56,7 @@ public class PolicyController : ControllerBase
         }
         catch (ArgumentException ex)
         {
-            return BadRequest("invalid premium amount");
+            return BadRequest($"Invalid Data: {ex.Message}");
         }
         catch (Exception ex)
         {
@@ -65,4 +65,39 @@ public class PolicyController : ControllerBase
 
     }
 
+    [HttpPut]
+    public async Task<IActionResult> UpdatePolicyAsync(Policy policy)
+    {
+        try
+        {
+            await _policyService.UpdatePolicyAsync(policy);
+            return Ok("Policy Updated successfully");
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest($"Invalid Data: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+
     }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeletePolicyAsync(int policyId)
+    {
+        try
+        {
+            await _policyService.DeletePolicyAsync(policyId);
+            return Ok("Policy deleted successfully");
+        }
+
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+
+    }
+
+}

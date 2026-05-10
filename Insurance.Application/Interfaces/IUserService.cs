@@ -4,7 +4,7 @@ namespace Insurance.Application.Interfaces;
 
 public interface IUserService
 {
-    public Task<User> GetUserByIdAsync(int Id);
+    public Task<User> GetUserByIdAsync(int UserId);
 
     public Task<User> GetUserByEmailAsync(string email);
 

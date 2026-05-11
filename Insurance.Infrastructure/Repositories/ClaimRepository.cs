@@ -33,23 +33,21 @@ namespace Insurance.Infrastructure.Repositories
             }
         }
 
-        public async Task<Claim?> GetClaimByIdAsync(int claimId)
+        public async Task<IEnumerable<Claim>> GetClaimByIdAsync(int userId)
         {
             try
             {
-                // We use FirstOrDefaultAsync because FindAsync does not support .Include()
                 return await _context.Claims
-                .Include(c => c.customerPolicy)
-                    .ThenInclude(cp => cp.Policy)
-                .Include(c => c.customerPolicy)
-                    .ThenInclude(cp => cp.User)
-                .FirstOrDefaultAsync(c => c.ClaimId == claimId);
+                    .Include(c => c.customerPolicy)
+                        .ThenInclude(cp => cp.Policy)
+                    // The magic happens here: We filter by the UserId inside the CustomerPolicy
+                    .Where(c => c.customerPolicy.UserId == userId)
+                    .ToListAsync();
             }
             catch (SqlException ex)
             {
-                throw new Exception("Technical error: Could not retrieve claim from database.", ex);
+                throw new Exception("Technical error: Could not retrieve claims for this user.", ex);
             }
-
         }
 
         public async Task AddClaimAsync(Claim claim)
@@ -96,6 +94,16 @@ namespace Insurance.Infrastructure.Repositories
                 throw new InvalidOperationException("Database error: Could not delete the claim.", ex);
             }
             
+        }
+
+        Task<Claim> IClaimRepository.GetClaimByIdAsync(int claimId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<Claim>> GetClaimsByUserIdAsync(int userId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

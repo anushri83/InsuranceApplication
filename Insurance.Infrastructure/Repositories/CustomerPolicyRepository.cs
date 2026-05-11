@@ -42,12 +42,16 @@ namespace Insurance.Infrastructure.Repositories
             }
         }
 
+        // For Customer: "Show me the policies I own"       
         public async Task<IEnumerable<CustomerPolicy>> GetByUserIdAsync(int userId)
         {
             try
             {
-                return await _context.CustomerPolicies.Include(cp => cp.User).Include(cp => cp.Policy)
-                    .Where(cp => cp.UserId == userId).ToListAsync();
+                return await _context.CustomerPolicies
+                .Include(cp => cp.Policy)
+                .Include(cp => cp.Agent) // To see which agent is helping them
+                .Where(cp => cp.UserId == userId)
+                .ToListAsync();
 
             }
             catch (SqlException ex)
@@ -103,6 +107,22 @@ namespace Insurance.Infrastructure.Repositories
             }
 
         }
+
+        public Task<IEnumerable<CustomerPolicy>> GetByAgentIdAsync(int agentId)
+        {
+            throw new NotImplementedException();
+        }
+        //// For Agent: "Show me all policies I have sold"
+        //public async Task<IEnumerable<CustomerPolicy>> GetByAgentIdAsync(int agentId)
+        //{
+        //    return await _context.CustomerPolicies
+        //        .Include(cp => cp.User)   // The Customer
+        //        .Include(cp => cp.Policy) // The Product
+        //        .Where(cp => cp.AgentId == agentId)
+        //        .ToListAsync();
+        //}
+
+
 
 
     }

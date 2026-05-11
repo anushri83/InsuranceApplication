@@ -68,5 +68,20 @@ namespace Insurance.Infrastructure.Repositories
             }
             
         }
+
+        public Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<User>> GetUsersByRoleAsync(UserRole role)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<User>> GetCustomersByAgentIdAsync(int agentId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

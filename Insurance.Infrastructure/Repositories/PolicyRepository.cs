@@ -93,4 +93,9 @@ public class PolicyRepository : IPolicyRepository
         }
 
     }
- }
+
+    public Task<IEnumerable<Policy>> GetActivePoliciesAsync()
+    {
+        throw new NotImplementedException();
+    }
+}

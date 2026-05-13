@@ -15,16 +15,24 @@ namespace Insurance.Infrastructure.Repositories
             _context = context;
         }
 
+
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
         public async Task<User?> GetUserByIdAsync(int UserId)
         {
-            // Simply return the user or null. Let the caller handle the "NotFound" logic.
             return await _context.Users.FirstOrDefaultAsync(e => e.UserId == UserId);
         }
 
         public async Task<User?> GetUserByEmailAsync(string email)
         {
-            // Simply return the user or null. Let the caller handle the "NotFound" logic.
             return await _context.Users.FirstOrDefaultAsync(e => e.Email == email);
+        }
+
+        public async Task<IEnumerable<User>> GetUsersByRoleAsync(UserRole role)
+        {
+            return await _context.Users.Where(e => e.Role == role).ToListAsync();
         }
 
         public async Task AddUserAsync(User user)
@@ -69,19 +77,6 @@ namespace Insurance.Infrastructure.Repositories
             
         }
 
-        public Task<IEnumerable<User>> GetAllUsersAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<User>> GetUsersByRoleAsync(UserRole role)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<User>> GetCustomersByAgentIdAsync(int agentId)
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 }

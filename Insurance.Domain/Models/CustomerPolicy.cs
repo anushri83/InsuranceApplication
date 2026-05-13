@@ -25,7 +25,7 @@ public class CustomerPolicy
     [Required]
     public DateTime EndDate { get; set; }
 
-    public PolicyStatus Status { get; set; }
+    public CustomerPolicyStatus Status { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     // Navigation properties

@@ -9,4 +9,6 @@ public interface IPolicyService
     Task AddPolicyAsync(Policy policy);
     Task UpdatePolicyAsync(Policy policy);
     Task DeletePolicyAsync(int id);
+    Task<IEnumerable<Policy>> GetActivePoliciesAsync();
+    Task<IEnumerable<Policy>> GetInActivePoliciesAsync();
 }

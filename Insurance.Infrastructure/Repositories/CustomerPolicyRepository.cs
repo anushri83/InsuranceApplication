@@ -61,6 +61,12 @@ namespace Insurance.Infrastructure.Repositories
 
         }
 
+        public async Task<IEnumerable<User>> GetCustomersByAgentIdAsync(int agentId)
+        {
+            return await _context.CustomerPolicies.Include(cp => cp.User).Where(cp => cp.AgentId == agentId)
+                .Select(cp => cp.User).Distinct().ToListAsync();
+        }
+
         public async Task AddCustomerPolicyAsync(CustomerPolicy customerPolicy)
         {
             try
@@ -108,21 +114,16 @@ namespace Insurance.Infrastructure.Repositories
 
         }
 
-        public Task<IEnumerable<CustomerPolicy>> GetByAgentIdAsync(int agentId)
+
+        // For Agent: "Show me all policies I have sold"
+        public async Task<IEnumerable<CustomerPolicy>> GetByAgentIdAsync(int agentId)
         {
-            throw new NotImplementedException();
+            return await _context.CustomerPolicies
+                .Include(cp => cp.User)   // The Customer
+                .Include(cp => cp.Policy) // The Product
+                .Where(cp => cp.AgentId == agentId)
+                .ToListAsync();
         }
-        //// For Agent: "Show me all policies I have sold"
-        //public async Task<IEnumerable<CustomerPolicy>> GetByAgentIdAsync(int agentId)
-        //{
-        //    return await _context.CustomerPolicies
-        //        .Include(cp => cp.User)   // The Customer
-        //        .Include(cp => cp.Policy) // The Product
-        //        .Where(cp => cp.AgentId == agentId)
-        //        .ToListAsync();
-        //}
-
-
 
 
     }

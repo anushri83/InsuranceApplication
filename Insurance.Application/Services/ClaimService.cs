@@ -35,11 +35,12 @@ namespace Insurance.Application.Services
             }
         }
 
-        public async Task<Claim> GetClaimByIdAsync(int claimId)
+
+        public async Task<Claim> GetClaimByClaimIdAsync(int claimId)
         {
             try
             {
-                var claim = await _claimRepository.GetClaimByIdAsync(claimId);
+                var claim = await _claimRepository.GetClaimByClaimIdAsync(claimId);
                 if (claim == null)
                 {
                     throw new KeyNotFoundException($"Customer policy with ID {claimId} not found.");
@@ -52,6 +53,24 @@ namespace Insurance.Application.Services
                 throw new Exception("Error occured at service layer"); ;
             }
         }
+
+        public async Task<IEnumerable<Claim>> GetClaimsByUserIdAsync(int UserId)
+        {
+            try
+            {
+                var claims =  await _claimRepository.GetClaimsByUserIdAsync(UserId);
+                if (claims == null)
+                {
+                    throw new KeyNotFoundException($"Claim with ID {UserId} not found.");
+                }
+                return claims;
+            }
+            catch (Exception)
+            {
+                throw new Exception("Error occured at service layer"); ;
+            }
+        }
+       
         public async Task AddClaimAsync(Claim claim)
         {
             var customerpolicy = _customerPolicyRepository.GetCustomerPolicyByIdAsync(claim.CustomerPolicyId).Result;
@@ -61,7 +80,7 @@ namespace Insurance.Application.Services
                 throw new KeyNotFoundException("Cannot file claim: The associated Customer Policy does not exist.");
             }
             //Only 'Active' policies can have claims filed
-            if (customerpolicy.Status != PolicyStatus.Active)
+            if (customerpolicy.Status != CustomerPolicyStatus.Active)
             {
                 throw new InvalidOperationException("Cannot file claim: The associated Customer Policy is not active.");
             }
@@ -73,7 +92,7 @@ namespace Insurance.Application.Services
 
         public async Task ApproveClaimAsync(int claimId)
         {
-            var claim = _claimRepository.GetClaimByIdAsync(claimId).Result;
+            var claim = _claimRepository.GetClaimByClaimIdAsync(claimId).Result;
             if(claim == null)
             {
                 throw new KeyNotFoundException($"Claim with ID {claimId} not found.");
@@ -84,7 +103,7 @@ namespace Insurance.Application.Services
 
         public async Task DeleteClaimAsync(int claimId)
         {
-            var claim = _claimRepository.GetClaimByIdAsync(claimId).Result;
+            var claim = _claimRepository.GetClaimByClaimIdAsync(claimId).Result;
             if(claim == null)
             {
                 throw new KeyNotFoundException($"Claim with ID {claimId} not found.");
@@ -96,7 +115,7 @@ namespace Insurance.Application.Services
 
         public async Task RejectClaimAsync(int claimId, string reason)
         {
-            var claim = await _claimRepository.GetClaimByIdAsync(claimId);
+            var claim = await _claimRepository.GetClaimByClaimIdAsync(claimId);
             if (claim == null)
             {
                 throw new KeyNotFoundException("Claim not found.");
@@ -106,5 +125,7 @@ namespace Insurance.Application.Services
             claim.Status = ClaimStatus.Rejected;
             await _claimRepository.UpdateClaimAsync(claim);
         }
+
+
     }
 }

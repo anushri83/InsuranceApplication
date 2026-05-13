@@ -24,16 +24,39 @@ namespace Insurance.API.Controllers
 
 
         [HttpGet("{ClaimId}")]
-        public async Task<IActionResult> GetClaimByIdAsync(int ClaimId)
+        public async Task<IActionResult> GetClaimByClaimIdAsync(int ClaimId)
         {
             try
             {
-                var claim = await _claimService.GetClaimByIdAsync(ClaimId);
+                var claim = await _claimService.GetClaimByClaimIdAsync(ClaimId);
                 return Ok(claim);
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+
+        [HttpGet("user/{UserId}")]
+        public async Task<IActionResult> GetClaimsByUserIdAsync(int UserId)
+        {
+            try
+            {
+                var claims = await _claimService.GetClaimsByUserIdAsync(UserId);
+                return Ok(claims);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
 
@@ -54,6 +77,10 @@ namespace Insurance.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
 
         //(Admin action)
@@ -65,11 +92,16 @@ namespace Insurance.API.Controllers
                 await _claimService.ApproveClaimAsync(ClaimId);
                 return Ok("Claim has been Approved.");
             }
-            catch (KeyNotFoundException ex)
+            catch (ArgumentException ex)
             {
-                return NotFound(ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
 
         // (Admin action)
         [HttpPut("{ClaimId}/reject")]
@@ -80,24 +112,32 @@ namespace Insurance.API.Controllers
                 await _claimService.RejectClaimAsync(ClaimId, reason);
                 return Ok("Claim has been Rejected.");
             }
-            catch (KeyNotFoundException ex)
+            catch (ArgumentException ex)
             {
-                return NotFound(ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
 
         
         [HttpDelete("{ClaimId}")]
-        public async Task<IActionResult> Delete(int ClaimId)
+        public async Task<IActionResult> DeleteClaimAsync(int ClaimId)
         {
             try
             {
                 await _claimService.DeleteClaimAsync(ClaimId);
                 return Ok("Claim record deleted.");
             }
-            catch (KeyNotFoundException ex)
+            catch (ArgumentException ex)
             {
-                return NotFound(ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
     }

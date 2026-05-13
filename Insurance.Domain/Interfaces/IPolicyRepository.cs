@@ -19,7 +19,11 @@ namespace Insurance.Domain.Interfaces
         // Removes an insurance product from the catalog permanently
         Task DeletePolicyAsync(int PolicyId);
 
-        // Retrieves only the insurance plans that are currently flagged as active for customers to purchase in the shop
+        // Retrieves only the active policy used bv customer and admin to view the details of active policy
         Task<IEnumerable<Policy>> GetActivePoliciesAsync();
+
+
+        // Retrieves only the Inactive policy admin to view the details of active policy
+        Task<IEnumerable<Policy>> GetInActivePoliciesAsync();
     }
 }

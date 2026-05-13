@@ -110,4 +110,40 @@ public class PolicyService : IPolicyService
             throw new Exception("Error occured at service layer");
         }
     }
+
+    public async Task<IEnumerable<Policy>> GetActivePoliciesAsync()
+    {
+        try
+        {
+            var policies = await _repository.GetActivePoliciesAsync();
+
+            if (policies == null || !policies.Any())
+            {
+                return Enumerable.Empty<Policy>();
+            }
+            return policies;
+        }
+
+        catch (Exception ex)
+        {
+            throw new Exception("Error occured at service layer", ex);
+        }
+    }
+
+    public async Task<IEnumerable<Policy>> GetInActivePoliciesAsync()
+    {
+        try
+        {
+            var policies =  await _repository.GetInActivePoliciesAsync();
+            if(policies == null || !policies.Any())
+            {
+                return Enumerable.Empty<Policy>();
+            }
+            return policies;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error occured at service layer", ex);
+        }
+    }
 }

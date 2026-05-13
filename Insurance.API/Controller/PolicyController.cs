@@ -92,7 +92,6 @@ public class PolicyController : ControllerBase
             await _policyService.DeletePolicyAsync(policyId);
             return Ok("Policy deleted successfully");
         }
-
         catch (Exception ex)
         {
             return StatusCode(500, $"An error occurred: {ex.Message}");
@@ -100,4 +99,31 @@ public class PolicyController : ControllerBase
 
     }
 
+    [HttpGet("active")]
+    public async Task<IActionResult> GetActivePoliciesAsync()
+    {
+        try
+        {
+            var policies = await _policyService.GetActivePoliciesAsync();
+            return Ok(policies);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
+
+    [HttpGet("inactive")]
+    public async Task<IActionResult> GetInActivePoliciesAsync()
+    {
+        try
+        {
+            var policies = await _policyService.GetInActivePoliciesAsync();
+            return Ok(policies);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
 }

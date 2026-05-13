@@ -94,8 +94,29 @@ public class PolicyRepository : IPolicyRepository
 
     }
 
-    public Task<IEnumerable<Policy>> GetActivePoliciesAsync()
+    public async Task<IEnumerable<Policy>> GetActivePoliciesAsync()
     {
-        throw new NotImplementedException();
+        try
+        {
+            return await _context.Policies.Where(p => p.Status == PolicyStatus.Active).ToListAsync();
+
+        }
+        catch (SqlException ex)
+        {
+            throw new Exception("Database error while retrieving policy.", ex);
+        }
+    }
+
+    public async Task<IEnumerable<Policy>> GetInActivePoliciesAsync()
+    {
+        try
+        {
+            return await _context.Policies.Where(p => p.Status== PolicyStatus.Inactive).ToListAsync();
+
+        }
+        catch (SqlException ex)
+        {
+            throw new Exception("Database error while retrieving policy.", ex);
+        }
     }
 }

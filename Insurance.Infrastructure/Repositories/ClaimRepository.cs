@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.SqlClient;
+﻿using Azure;
 using Insurance.Domain.Interfaces;
 using Insurance.Domain.Models;
 using Insurance.Infrastructure.Data;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.Intrinsics.X86;
 
 namespace Insurance.Infrastructure.Repositories
 {
@@ -33,14 +35,32 @@ namespace Insurance.Infrastructure.Repositories
             }
         }
 
-        public async Task<IEnumerable<Claim>> GetClaimByIdAsync(int userId)
+        public async Task<Claim> GetClaimByClaimIdAsync(int claimId)
+        {
+            try
+            {
+                //use FirstOrDefaultAsync to enable eager loading of related tables
+                return await _context.Claims
+                .Include(c => c.customerPolicy)       // Load the link between user and policy
+                    .ThenInclude(cp => cp.Policy)    // Load the actual Insurance Product details
+                .Include(c => c.customerPolicy)
+                    .ThenInclude(cp => cp.User)      // Load the Customer's profile info
+                .FirstOrDefaultAsync(c => c.ClaimId == claimId);
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Technical error: Could not retrieve claims for this claimId.", ex);
+            }
+        }
+
+        public async Task<IEnumerable<Claim>> GetClaimsByUserIdAsync(int userId)
         {
             try
             {
                 return await _context.Claims
                     .Include(c => c.customerPolicy)
                         .ThenInclude(cp => cp.Policy)
-                    // The magic happens here: We filter by the UserId inside the CustomerPolicy
+                    // We filter by the UserId inside the CustomerPolicy
                     .Where(c => c.customerPolicy.UserId == userId)
                     .ToListAsync();
             }
@@ -95,15 +115,8 @@ namespace Insurance.Infrastructure.Repositories
             }
             
         }
+          
 
-        Task<Claim> IClaimRepository.GetClaimByIdAsync(int claimId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Claim>> GetClaimsByUserIdAsync(int userId)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

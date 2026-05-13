@@ -2,6 +2,7 @@
 using Insurance.Domain.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Insurance.API.Controllers;
@@ -23,15 +24,11 @@ public class UserController : ControllerBase
         try
         {
             User user = await _userService.GetUserByIdAsync(UserId);
-            if (user == null)
-            {
-                return NotFound($"user with ID {UserId} not found");
-            }
             return Ok(user);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return BadRequest("An error occurred while fetching the user.");
+            return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
     [HttpGet("email")]
@@ -40,17 +37,42 @@ public class UserController : ControllerBase
         try
         {
             User user = await _userService.GetUserByEmailAsync(email);
-            if (user == null)
-            {
-                return NotFound($"user with {email} not found");
-            }
             return Ok(user);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return BadRequest("An error occurred while fetching the user.");
+            return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
+
+    [HttpGet]
+     public async Task<IActionResult> GetAllUsersAsync()
+    {
+        try
+        {
+            var users = await _userService.GetAllUsersAsync();
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
+
+    public async Task<IActionResult> GetUsersByRoleAsync(UserRole role)
+    {
+        try
+        {
+            var users = await _userService.GetUsersByRoleAsync(role);                
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
+    
+
     [HttpPost]
     public async Task<IActionResult> AddUserAsync(User user)
     {
@@ -66,6 +88,10 @@ public class UserController : ControllerBase
         catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
 
@@ -85,6 +111,10 @@ public class UserController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
     }
     [HttpDelete]
     public async Task<IActionResult> DeleteUserAsync(User user)
@@ -97,6 +127,10 @@ public class UserController : ControllerBase
         catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
 }

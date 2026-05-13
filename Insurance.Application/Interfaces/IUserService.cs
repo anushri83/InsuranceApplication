@@ -4,13 +4,19 @@ namespace Insurance.Application.Interfaces;
 
 public interface IUserService
 {
-    public Task<User> GetUserByIdAsync(int UserId);
+    Task<User> GetUserByIdAsync(int UserId);
 
-    public Task<User> GetUserByEmailAsync(string email);
+    Task<User> GetUserByEmailAsync(string email);
 
-    public Task AddUserAsync(User user);
+    Task<IEnumerable<User>> GetAllUsersAsync();
 
-    public Task UpdateUserAsync(User user);
+    Task<IEnumerable<User>> GetUsersByRoleAsync(UserRole role);
 
-    public Task DeleteUserAsync(User user);
+
+    Task AddUserAsync(User user);
+
+    Task UpdateUserAsync(User user);
+
+    Task DeleteUserAsync(User user);
 }
+

@@ -10,6 +10,12 @@ namespace Insurance.Domain.Interfaces
         // Retrieves a user record based on their email address, primarily used for login and unique checks
         Task<User?> GetUserByEmailAsync(string email);
 
+        // Returns a complete list of all users registered in the system for administrative management
+        Task<IEnumerable<User>> GetAllUsersAsync();
+
+        // Filters the user directory to return only specific groups, such as a list of all Agents or all Customers
+        Task<IEnumerable<User>> GetUsersByRoleAsync(UserRole role);
+
         // Inserts a new user record into the database during registration or onboarding
         Task AddUserAsync(User user);
 
@@ -19,13 +25,6 @@ namespace Insurance.Domain.Interfaces
         // Permanently removes a user record from the system
         Task DeleteUserAsync(User user);
 
-        // Returns a complete list of all users registered in the system for administrative management
-        Task<IEnumerable<User>> GetAllUsersAsync();
-
-        // Filters the user directory to return only specific groups, such as a list of all Agents or all Customers
-        Task<IEnumerable<User>> GetUsersByRoleAsync(UserRole role);
-
-        // Retrieves a unique list of customers who have purchased policies through a specific agent
-        Task<IEnumerable<User>> GetCustomersByAgentIdAsync(int agentId);
+        
     }
 }

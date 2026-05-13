@@ -65,6 +65,41 @@ namespace Insurance.Application.Services
             }
             
         }
+        public async Task<IEnumerable<CustomerPolicy>> GetByAgentIdAsync(int agentId)
+        {
+            try
+            {
+                var customerPolicies = await _customerPolicyRepository.GetByAgentIdAsync(agentId);
+                if(customerPolicies == null)
+                {
+                    return Enumerable.Empty<CustomerPolicy>();
+                }
+                return customerPolicies;
+            }
+            catch (Exception)
+            {
+                throw new Exception("Error occured at service layer");
+            }
+        }
+
+        public async Task<IEnumerable<User>> GetCustomersByAgentIdAsync(int agentId)
+        {
+            try
+            {
+                var customers = await _customerPolicyRepository.GetCustomersByAgentIdAsync(agentId);
+                if(customers == null)
+                {
+                    return Enumerable.Empty<User>();
+                }
+                return customers;
+            }
+            catch (Exception)
+            {
+                throw new Exception("Error occured at service layer");
+            }
+        }
+
+
         public async Task AddCustomerPolicyAsync(CustomerPolicy customerPolicy)
         {
             try
@@ -113,6 +148,6 @@ namespace Insurance.Application.Services
             }
         }
 
-
+      
     }
 }

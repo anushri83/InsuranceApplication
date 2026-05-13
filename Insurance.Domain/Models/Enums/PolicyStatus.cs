@@ -2,9 +2,7 @@
 
 public enum PolicyStatus
 {
-		Active,
-		Inactive,
-		Pending,
-		Expired
-    
+    Active,
+    Inactive
+
 }

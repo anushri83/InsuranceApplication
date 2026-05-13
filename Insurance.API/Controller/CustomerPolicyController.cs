@@ -41,7 +41,7 @@ public class CustomerPolicyController : ControllerBase
         }
         catch (Exception ex)
         {
-            return NotFound(ex);
+            return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
     [HttpGet("user/{userId}")]
@@ -54,9 +54,39 @@ public class CustomerPolicyController : ControllerBase
         }
         catch (Exception ex)
         {
-            return NotFound(ex);
+            return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
+
+    [HttpGet("agent/{agentId}")]
+    public async Task<IActionResult> GetByAgentIdAsync(int agentId)
+    {
+        try
+        {
+            var customerPolicies = await _customerPolicyService.GetByAgentIdAsync(agentId);
+            return Ok(customerPolicies);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
+
+    [HttpGet("agent/{agentId}/customers")]
+    public async Task<IActionResult> GetCustomersByAgentIdAsync(int agentId)
+    {
+        try
+        {
+           var customers = await _customerPolicyService.GetCustomersByAgentIdAsync(agentId);
+            return Ok(customers);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
+
+
     [HttpPost]
     public async Task<IActionResult> AddCustomerPolicyAsync(CustomerPolicy customerPolicy)
     {

@@ -16,7 +16,15 @@ public class AppDbContext : DbContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            // This is where you can define "Fluent API" rules (like unique keys)
+
+            // Fixes the warnings for Money/Decimal fields
+            modelBuilder.Entity<Policy>()
+                .Property(p => p.PremiumAmount)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Claim>()
+                .Property(c => c.ClaimAmount)
+                .HasColumnType("decimal(18,2)");
         }
     }
 }

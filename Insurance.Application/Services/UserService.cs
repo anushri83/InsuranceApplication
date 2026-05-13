@@ -33,6 +33,27 @@ namespace Insurance.Application.Services
             return user;
         }
 
+        public Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            var users = _userRepository.GetAllUsersAsync();
+            if(users == null)
+            {
+                throw new KeyNotFoundException("No users found.");
+            }
+            return users;
+        }
+
+        public Task<IEnumerable<User>> GetUsersByRoleAsync(UserRole role)
+        {
+            var users = _userRepository.GetUsersByRoleAsync(role);
+            if (users == null)
+            {
+                throw new KeyNotFoundException($"No users found for {role}.");
+            }
+            return users;
+        }
+
+
         public async Task AddUserAsync(User user)
         {
             User userExists = await _userRepository.GetUserByEmailAsync(user.Email);
@@ -80,7 +101,6 @@ namespace Insurance.Application.Services
             await _userRepository.DeleteUserAsync(user);
         }
 
-        
-
+       
     }
 }

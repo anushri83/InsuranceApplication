@@ -19,6 +19,9 @@ public class Policy
     public decimal PremiumAmount { get; set; }
 
     [Required]
+    public PolicyStatus Status { get; set; }
+
+    [Required]
     public int DurationInMonth { get; set; }
 
     public Policy() { }

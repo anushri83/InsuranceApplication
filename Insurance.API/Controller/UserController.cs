@@ -59,6 +59,7 @@ public class UserController : ControllerBase
         }
     }
 
+[HttpGet("role/{role}")]
     public async Task<IActionResult> GetUsersByRoleAsync(UserRole role)
     {
         try

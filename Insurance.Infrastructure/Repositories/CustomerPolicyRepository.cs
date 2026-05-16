@@ -85,6 +85,11 @@ namespace Insurance.Infrastructure.Repositories
         {
             try
             {
+                var localInstance = _context.CustomerPolicies.Local.FirstOrDefault(entry => entry.CustomerPolicyId == customerPolicy.CustomerPolicyId);
+                if (localInstance != null)
+                {
+                    _context.Entry(localInstance).State = EntityState.Detached;
+                }
                 _context.CustomerPolicies.Update(customerPolicy);
                 await _context.SaveChangesAsync();
             }
@@ -102,6 +107,11 @@ namespace Insurance.Infrastructure.Repositories
             {
                 try
                 {
+                    var localInstance = _context.CustomerPolicies.Local.FirstOrDefault(entry => entry.CustomerPolicyId == customerPolicyId);
+                    if (localInstance != null)
+                    {
+                        _context.Entry(localInstance).State = EntityState.Detached;
+                    }
                     _context.CustomerPolicies.Remove(customerpolicy);
                     await _context.SaveChangesAsync();
                 }

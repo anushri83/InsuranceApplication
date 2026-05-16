@@ -18,7 +18,7 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
-    [HttpGet("Id")]
+    [HttpGet("{Userid}")]
     public async Task<IActionResult> GetUsersByIdAsync(int UserId)
     {
         try
@@ -31,7 +31,7 @@ public class UserController : ControllerBase
             return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
-    [HttpGet("email")]
+    [HttpGet("email/{email}")]
     public async Task<IActionResult> GetUserByEmailAsync(string email)
     {
         try
@@ -118,11 +118,11 @@ public class UserController : ControllerBase
         }
     }
     [HttpDelete]
-    public async Task<IActionResult> DeleteUserAsync(User user)
+    public async Task<IActionResult> DeleteUserAsync(int  userId)
     {
         try
         {
-            await _userService.DeleteUserAsync(user);
+            await _userService.DeleteUserAsync(userId);
             return Ok($"User Deleted successfully at {DateTime.Now}");
         }
         catch (ArgumentException ex)

@@ -31,7 +31,7 @@ public class PolicyController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{PolicyId}")]
     public async Task<IActionResult> GetPolicyByPolicyIdAsync(int PolicyId)
     {
         try

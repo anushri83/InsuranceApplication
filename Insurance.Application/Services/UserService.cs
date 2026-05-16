@@ -91,14 +91,14 @@ namespace Insurance.Application.Services
             await _userRepository.UpdateUserAsync(user);
         }
 
-        public async Task DeleteUserAsync(User user)
+        public async Task DeleteUserAsync(int userId)
         {
-            User userExists = await _userRepository.GetUserByIdAsync(user.UserId);
+            User userExists = await _userRepository.GetUserByIdAsync(userId);
             if (userExists == null)
             {
-                throw new KeyNotFoundException($"User with ID {user.UserId} not found.");
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
             }
-            await _userRepository.DeleteUserAsync(user);
+            await _userRepository.DeleteUserAsync(userId);
         }
 
        

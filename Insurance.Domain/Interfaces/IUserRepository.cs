@@ -23,7 +23,7 @@ namespace Insurance.Domain.Interfaces
         Task UpdateUserAsync(User user);
 
         // Permanently removes a user record from the system
-        Task DeleteUserAsync(User user);
+        Task DeleteUserAsync(int userId);
 
         
     }

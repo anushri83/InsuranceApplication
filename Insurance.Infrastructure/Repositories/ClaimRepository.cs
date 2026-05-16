@@ -87,6 +87,12 @@ namespace Insurance.Infrastructure.Repositories
         {
             try
             {
+
+                var localInstance = _context.Claims.Local.FirstOrDefault(entry => entry.ClaimId == claim.ClaimId);
+                if (localInstance != null)
+                {
+                    _context.Entry(localInstance).State = EntityState.Detached;
+                }
                 // Used by Service for Approve/Reject logic
                 _context.Claims.Update(claim);
                 await _context.SaveChangesAsync();
@@ -100,23 +106,31 @@ namespace Insurance.Infrastructure.Repositories
 
         public async Task DeleteClaimAsync(int claimId)
         {
-            try
+            var claim = await GetClaimByClaimIdAsync(claimId);
+            if (claim != null)
             {
-                var claim = await _context.Claims.FindAsync(claimId);
-                if (claim != null)
+                try
                 {
-                    _context.Claims.Remove(claim);
-                    await _context.SaveChangesAsync();
+                    var localInstance = _context.Claims.Local.FirstOrDefault(entry => entry.ClaimId == claimId);
+                if (localInstance != null)
+                {
+                    _context.Entry(localInstance).State = EntityState.Detached;
                 }
-            }
-            catch (DbUpdateException ex)
-            {
-                throw new InvalidOperationException("Database error: Could not delete the claim.", ex);
-            }
+               
+                 _context.Claims.Remove(claim);
+                 await _context.SaveChangesAsync();
+                
+                }
+                catch (DbUpdateException ex)
+                {
+                    throw new InvalidOperationException("Database error: Could not delete the claim.", ex);
+                }
             
+            }
         }
           
 
         
     }
 }
+   

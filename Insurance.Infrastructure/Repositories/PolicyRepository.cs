@@ -63,6 +63,11 @@ public class PolicyRepository : IPolicyRepository
     {
         try
         {
+            var localInstance = _context.Policies.Local.FirstOrDefault(entry => entry.PolicyId == policy.PolicyId);
+            if (localInstance != null)
+            {
+                _context.Entry(localInstance).State = EntityState.Detached;
+            }
             _context.Policies.Update(policy);
             await _context.SaveChangesAsync();
         }
@@ -78,18 +83,25 @@ public class PolicyRepository : IPolicyRepository
 
     public async Task DeletePolicyAsync(int PolicyId)
     {
-        try
+        var policy = await GetPolicyByPolicyIdAsync(PolicyId);
+        if (policy != null)
         {
-            var policy = await _context.Policies.FindAsync(PolicyId);
-            if (policy != null)
+            try
             {
+                var localInstance = _context.Policies.Local.FirstOrDefault(entry => entry.PolicyId == PolicyId);
+                if (localInstance != null)
+                {
+                    _context.Entry(localInstance).State = EntityState.Detached;
+                }
+
                 _context.Policies.Remove(policy);
                 await _context.SaveChangesAsync();
             }
-        }
-        catch (DbUpdateException ex)
-        {
-            throw new InvalidOperationException("Could not delete policy. Please check if the data violates database rules.", ex);
+            catch (DbUpdateException ex)
+            {
+                throw new InvalidOperationException("Could not delete policy. Please check if the data violates database rules.", ex);
+            }
+
         }
 
     }

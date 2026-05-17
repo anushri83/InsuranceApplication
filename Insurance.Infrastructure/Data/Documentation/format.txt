@@ -1,0 +1,135 @@
+﻿Add policy 
+
+{
+  "customerPolicyId": 0,
+  "userId": 1,
+  "policyId": 1,
+  "agentId": 3,
+  "startDate": "2026-05-17T00:00:00.000Z",
+  "endDate": "2027-05-17T00:00:00.000Z",
+  "status": 0
+}
+
+Update policy
+ {
+  "customerPolicyId": 1,
+  "userId": 1,
+  "policyId": 1,
+  "agentId": 3,
+  "startDate": "2026-05-17T00:00:00.000Z",
+  "endDate": "2028-05-17T00:00:00.000Z",
+  "status": 1
+}
+
+
+
+
+
+do this ->
+
+
+
+1. Premium Calculator (Age Risk Rule)
+The Math Class: PolicyService.cs
+
+The Swagger Entry point: PolicyController.cs
+
+2. No-Claim Bonus (NCB) Calculator (Renewal Rule)
+The Math Class: CustomerPolicyService.cs (since this deals with renewals/purchases)
+
+The Swagger Entry point: CustomerPolicyController.cs
+
+3. Policy Co-Payment Calculator (Claims Rule)
+The Math Class: ClaimService.cs
+
+The Swagger Entry point: ClaimsController.cs
+
+
+
+
+## 1. The Premium Calculator (Policy Service)
+
+Instead of forcing everyone to pay the exact same price, insurance companies adjust the premium amount based on a user's risk (like their age or health history).
+
+### **The Rule:**
+
+If a customer is over 40 years old, their premium should increase by **20%** because older individuals carry a higher medical risk.
+
+### **Short Code Example:**
+
+```csharp
+public decimal CalculateCustomPremium(Policy policy, User customer)
+{
+    decimal finalPremium = policy.PremiumAmount;
+    
+    // Calculate age based on DateOfBirth
+    int age = DateTime.UtcNow.Year - customer.DateOfBirth.Value.Year;
+    
+    if (age > 40)
+    {
+        finalPremium += (policy.PremiumAmount * 0.20m); // 20% risk hike
+    }
+    
+    return finalPremium;
+}
+
+```
+
+---
+
+## 2. No-Claim Bonus (NCB) Calculator (Policy Renewal Service)
+
+A "No-Claim Bonus" is a reward for safe customers. If a customer passes an entire year without filing a single insurance claim, they get a discount on their next policy renewal.
+
+### **The Rule:**
+
+When renewing a policy, check if the user has any approved claims in the past year. If they have **zero** claims, give them a **15% discount** on their next premium.
+
+### **Short Code Example:**
+
+```csharp
+public async Task<decimal> CalculateRenewalPremiumAsync(int customerPolicyId)
+{
+    var cp = await _customerPolicyRepository.GetByIdAsync(customerPolicyId);
+    var claims = await _claimRepository.GetClaimsByCustomerPolicyIdAsync(customerPolicyId);
+    
+    // Check if any claims were filed/approved
+    bool hadClaims = claims.Any(c => c.Status == ClaimStatus.Approved);
+    
+    var policy = await _policyRepository.GetPolicyByIdAsync(cp.PolicyId);
+    
+    if (!hadClaims)
+    {
+        return policy.PremiumAmount * 0.85m; // 15% discount reward!
+    }
+    
+    return policy.PremiumAmount;
+}
+
+```
+
+---
+
+## 3. Policy Co-Payment Calculator (Claims Service)
+
+In many insurance setups, the company doesn't pay 100% of the bill. The customer has a "Co-Pay" clause where they must pay a small percentage of the claim out of their own pocket.
+
+### **The Rule:**
+
+The insurance company covers **80%** of the approved claim amount, and the customer must pay the remaining **20%** directly to the hospital/garage.
+
+### **Short Code Example:**
+
+```csharp
+public object CalculateClaimSettlement(decimal totalClaimAmount)
+{
+    decimal customerShare = totalClaimAmount * 0.20m;   // 20% Co-Pay
+    decimal insuranceCompanyShare = totalClaimAmount * 0.80m; // 80% Payout
+    
+    return new {
+        ApprovedAmount = totalClaimAmount,
+        CompanyPays = insuranceCompanyShare,
+        CustomerPays = customerShare
+    };
+}
+

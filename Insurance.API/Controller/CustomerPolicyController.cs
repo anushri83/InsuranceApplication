@@ -31,7 +31,8 @@ public class CustomerPolicyController : ControllerBase
         }
         
     }
-    [HttpGet("{customerPolicyId}")]
+
+    [HttpGet("customePolicy/{customerPolicyId}")]
     public async Task<IActionResult> GetCustomerPolicyByIdAsync(int customerPolicyId)
     {
         try
@@ -44,6 +45,7 @@ public class CustomerPolicyController : ControllerBase
             return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
+
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetByUserIdAsync(int userId)
     {
@@ -86,6 +88,24 @@ public class CustomerPolicyController : ControllerBase
         }
     }
 
+    [HttpGet("{agentId}/Commission")]
+    public async Task<IActionResult> CalculateAgentCommissionAsync(int agentId)
+    {
+        try
+        {
+            decimal commission = await _customerPolicyService.CalculateAgentCommissionAsync(agentId);
+            return Ok(new
+            {
+                AgentId = agentId,
+                TotalCommissionEarned = commission
+            });
+        }
+
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred calculating commission: {ex.Message}");
+        }
+    }
 
     [HttpPost]
     public async Task<IActionResult> AddCustomerPolicyAsync(CustomerPolicy customerPolicy)
@@ -104,6 +124,7 @@ public class CustomerPolicyController : ControllerBase
             return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
+
     [HttpPut]
     public async Task<IActionResult> UpdateCustomerPolicyAsync(CustomerPolicy customerPolicy)
     {
@@ -121,6 +142,7 @@ public class CustomerPolicyController : ControllerBase
             return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
+
     [HttpDelete]
     public async Task<IActionResult> DeleteCustomerPolicyAsync(int customerPolicyId)
     {
@@ -138,6 +160,8 @@ public class CustomerPolicyController : ControllerBase
             return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
+
+    
 
 }
 

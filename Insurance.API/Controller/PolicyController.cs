@@ -31,7 +31,7 @@ public class PolicyController : ControllerBase
         }
     }
 
-    [HttpGet("{PolicyId}")]
+    [HttpGet("policy/{PolicyId}")]
     public async Task<IActionResult> GetPolicyByPolicyIdAsync(int PolicyId)
     {
         try
@@ -44,6 +44,35 @@ public class PolicyController : ControllerBase
             return  NotFound(ex);
         }
         
+    }
+
+
+    [HttpGet("active")]
+    public async Task<IActionResult> GetActivePoliciesAsync()
+    {
+        try
+        {
+            var policies = await _policyService.GetActivePoliciesAsync();
+            return Ok(policies);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
+
+    [HttpGet("inactive")]
+    public async Task<IActionResult> GetInActivePoliciesAsync()
+    {
+        try
+        {
+            var policies = await _policyService.GetInActivePoliciesAsync();
+            return Ok(policies);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
     }
 
     [HttpPost]
@@ -99,31 +128,4 @@ public class PolicyController : ControllerBase
 
     }
 
-    [HttpGet("active")]
-    public async Task<IActionResult> GetActivePoliciesAsync()
-    {
-        try
-        {
-            var policies = await _policyService.GetActivePoliciesAsync();
-            return Ok(policies);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred: {ex.Message}");
-        }
-    }
-
-    [HttpGet("inactive")]
-    public async Task<IActionResult> GetInActivePoliciesAsync()
-    {
-        try
-        {
-            var policies = await _policyService.GetInActivePoliciesAsync();
-            return Ok(policies);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred: {ex.Message}");
-        }
-    }
 }

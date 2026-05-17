@@ -1,16 +1,20 @@
 ﻿using Insurance.Application.Interfaces;
 using Insurance.Domain.Interfaces;
 using Insurance.Domain.Models;
+using Insurance.Infrastructure.Repositories;
+using System.Security.Claims;
 
 namespace Insurance.Application.Services
 {
     public class CustomerPolicyService: ICustomerPolicyService
     {
         private readonly ICustomerPolicyRepository _customerPolicyRepository;
+        private readonly IPolicyRepository _policyRepository;
 
-        public CustomerPolicyService(ICustomerPolicyRepository customerPolicyRepository)
+        public CustomerPolicyService(ICustomerPolicyRepository customerPolicyRepository , IPolicyRepository policyRepository)
         {
             _customerPolicyRepository = customerPolicyRepository;
+            _policyRepository = policyRepository;
         }
 
         public async Task<IEnumerable<CustomerPolicy>> GetAllCustomerPoliciesAsync() 
@@ -104,16 +108,30 @@ namespace Insurance.Application.Services
         {
             try
             {
-                if (customerPolicy == null)
+                var customerpolicy = await _customerPolicyRepository.GetCustomerPolicyByIdAsync(customerPolicy.CustomerPolicyId);
+                var policy = await _policyRepository.GetPolicyByPolicyIdAsync(customerPolicy.PolicyId);
+
+                if(policy == null)
                 {
-                    throw new KeyNotFoundException("Customer policy data cannot be null.");
+                    throw new Exception("Policy does not exist.");
                 }
+                  
+                if (customerpolicy != null)
+                {
+                    throw new KeyNotFoundException(" The associated Customer Policy already exist.");
+                }
+                customerPolicy.StartDate = DateTime.Now;
+                // Automatically add months based on the policy rules
+                customerPolicy.EndDate = customerPolicy.StartDate.AddMonths(policy.DurationInMonth);
+                customerPolicy.Status = CustomerPolicyStatus.Active;
                 await _customerPolicyRepository.AddCustomerPolicyAsync(customerPolicy);
+
             }
             catch (Exception)
             {
                 throw new Exception("Error occured at service layer");
             }
+            
             
         }
         public async Task UpdateCustomerPolicyAsync(CustomerPolicy customerPolicy)
@@ -148,6 +166,28 @@ namespace Insurance.Application.Services
             }
         }
 
-      
+        public async Task<decimal> CalculateAgentCommissionAsync(int agentId)
+        {
+            // 1. Fetch all policies sold by this specific agent
+            var activeSales = await GetByAgentIdAsync(agentId);
+
+            decimal totalCommission = 0;
+
+            foreach (var sale in activeSales)
+            {
+                var policy = await _policyRepository.GetPolicyByPolicyIdAsync(sale.PolicyId);
+
+                if (policy == null)
+                {
+                    throw new KeyNotFoundException(" policy ID does not exist .");
+                }
+                // Apply a flat 10% commission rule on the price
+                totalCommission += (policy.PremiumAmount * 0.10m);
+            }
+
+            return totalCommission;
+        }
+
+
     }
 }

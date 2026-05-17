@@ -23,7 +23,7 @@ namespace Insurance.API.Controllers
         }
 
 
-        [HttpGet("{ClaimId}")]
+        [HttpGet("claim/{ClaimId}")]
         public async Task<IActionResult> GetClaimByClaimIdAsync(int ClaimId)
         {
             try
@@ -60,7 +60,6 @@ namespace Insurance.API.Controllers
             }
         }
 
-        // Customer filing a claim.
         [HttpPost]
         public async Task<IActionResult> AddClaimAsync([FromBody] Claim claim) 
         {

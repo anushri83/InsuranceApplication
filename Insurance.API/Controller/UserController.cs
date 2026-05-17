@@ -18,7 +18,21 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
-    [HttpGet("{Userid}")]
+    [HttpGet]
+    public async Task<IActionResult> GetAllUsersAsync()
+    {
+        try
+        {
+            var users = await _userService.GetAllUsersAsync();
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
+
+    [HttpGet("user/{UserId}")]
     public async Task<IActionResult> GetUsersByIdAsync(int UserId)
     {
         try
@@ -31,6 +45,7 @@ public class UserController : ControllerBase
             return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
+
     [HttpGet("email/{email}")]
     public async Task<IActionResult> GetUserByEmailAsync(string email)
     {
@@ -45,19 +60,6 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpGet]
-     public async Task<IActionResult> GetAllUsersAsync()
-    {
-        try
-        {
-            var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred: {ex.Message}");
-        }
-    }
 
     [HttpGet("role/{role}")]
         public async Task<IActionResult> GetUsersByRoleAsync(UserRole role)

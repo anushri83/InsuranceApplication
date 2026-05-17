@@ -12,6 +12,7 @@ namespace Insurance.Application.Interfaces
         Task AddCustomerPolicyAsync(CustomerPolicy customerPolicy);
         Task UpdateCustomerPolicyAsync(CustomerPolicy customerPolicy);
         Task DeleteCustomerPolicyAsync(int customerPolicyId);
+        Task<decimal> CalculateAgentCommissionAsync(int agentId);
 
     }
 }

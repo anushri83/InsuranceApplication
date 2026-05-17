@@ -124,7 +124,6 @@ namespace Insurance.Infrastructure.Repositories
 
         }
 
-
         // For Agent: "Show me all policies I have sold"
         public async Task<IEnumerable<CustomerPolicy>> GetByAgentIdAsync(int agentId)
         {

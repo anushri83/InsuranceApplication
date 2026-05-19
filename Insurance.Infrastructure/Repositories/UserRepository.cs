@@ -34,7 +34,7 @@ namespace Insurance.Infrastructure.Repositories
             return await _context.Users.Where(e => e.Role == role).ToListAsync();
         }
 
-        public async Task AddUserAsync(User user)
+        public async Task RegisterUserAsync(User user)
         {
             try
             {

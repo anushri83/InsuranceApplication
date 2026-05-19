@@ -112,7 +112,11 @@ public class CustomerPolicyController : ControllerBase
     {
         try
         {
-             await _customerPolicyService.AddCustomerPolicyAsync(customerPolicy);
+            if (!ModelState.IsValid)    // Checks if the incoming data is valid based on the model's data annotations
+            {
+                return BadRequest(ModelState);
+            }
+            await _customerPolicyService.AddCustomerPolicyAsync(customerPolicy);
             return Ok("Customer policy added successfully.");
         }
         catch (ArgumentException ex)

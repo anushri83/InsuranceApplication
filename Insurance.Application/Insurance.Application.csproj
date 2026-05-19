@@ -5,6 +5,11 @@
     <ProjectReference Include="..\Insurance.Infrastructure\Insurance.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs\CustomerPolicyDTO\" />
+    <Folder Include="DTOs\PolicyDTO\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

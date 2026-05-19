@@ -1,4 +1,5 @@
-﻿using Insurance.Domain.Models;
+﻿using Insurance.Application.DTOs.UserDTO;
+using Insurance.Domain.Models;
 
 namespace Insurance.Application.Interfaces;
 
@@ -12,10 +13,15 @@ public interface IUserService
 
     Task<IEnumerable<User>> GetUsersByRoleAsync(UserRole role);
 
+    Task RegisterCustomerAsync(CreateCustomerDto dto);
 
-    Task AddUserAsync(User user);
+    Task RegisterAgentAsync(CreateAgentDto dto);
 
-    Task UpdateUserAsync(User user);
+    Task RegisterAdminAsync(CreateAdminDto dto);
+
+    Task UpdateUserAsync(UpdateUserDto dto);
+
+    Task ChangePasswordAsync(ChangePasswordDto dto);
 
     Task DeleteUserAsync(int userId);
 }

@@ -1,31 +1,12 @@
-﻿Add policy 
-
-{
-  "customerPolicyId": 0,
-  "userId": 1,
-  "policyId": 1,
-  "agentId": 3,
-  "startDate": "2026-05-17T00:00:00.000Z",
-  "endDate": "2027-05-17T00:00:00.000Z",
-  "status": 0
-}
-
-Update policy
- {
-  "customerPolicyId": 1,
-  "userId": 1,
-  "policyId": 1,
-  "agentId": 3,
-  "startDate": "2026-05-17T00:00:00.000Z",
-  "endDate": "2028-05-17T00:00:00.000Z",
-  "status": 1
-}
+﻿ModelState.IsActive() -> check if the model state is valid before processing the request. 
+    
 
 
 
 
 
-do this ->
+
+do this Later ->
 
 
 
@@ -41,7 +22,7 @@ The Swagger Entry point: CustomerPolicyController.cs
 
 3. Policy Co-Payment Calculator (Claims Rule)
 The Math Class: ClaimService.cs
-
+git checkout
 The Swagger Entry point: ClaimsController.cs
 
 

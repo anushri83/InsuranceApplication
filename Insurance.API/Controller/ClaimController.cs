@@ -65,8 +65,13 @@ namespace Insurance.API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)    // Checks if the incoming data is valid based on the model's data annotations
+                {
+                    return BadRequest(ModelState);
+                }
                 await _claimService.AddClaimAsync(claim);
                 return Ok("Claim submitted successfully and is now Pending.");
+                //return CreatedAtAction(nameof(GetClaimByClaimIdAsync), new { id = newClaim.ClaimId }, newClaim);
             }
             catch (KeyNotFoundException ex)
             {

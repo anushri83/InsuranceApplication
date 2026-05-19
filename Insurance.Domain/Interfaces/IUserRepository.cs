@@ -17,7 +17,7 @@ namespace Insurance.Domain.Interfaces
         Task<IEnumerable<User>> GetUsersByRoleAsync(UserRole role);
 
         // Inserts a new user record into the database during registration or onboarding
-        Task AddUserAsync(User user);
+        Task RegisterUserAsync(User user);
 
         // Updates personal details, roles, or status for an existing user
         Task UpdateUserAsync(User user);

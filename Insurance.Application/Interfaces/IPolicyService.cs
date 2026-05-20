@@ -4,9 +4,10 @@ namespace Insurance.Application.Interfaces;
 
 public interface IPolicyService
 {
-    Task<IEnumerable<Policy>> GetAllPolicyAsync();
-    Task<Policy> GetPolicyByPolicyIdAsync(int PolicyId);
-    Task AddPolicyAsync(Policy policy);
+
+    Task<IEnumerable<Policy>> GetAllPoliciesAsync();
+    Task<Policy> GetPolicyByPolicyIdAsync(int policyId);
+    Task CreatePolicyAsync(Policy policy);
     Task UpdatePolicyAsync(Policy policy);
     Task DeletePolicyAsync(int id);
     Task<IEnumerable<Policy>> GetActivePoliciesAsync();

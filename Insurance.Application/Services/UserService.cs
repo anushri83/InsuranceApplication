@@ -15,43 +15,258 @@ namespace Insurance.Application.Services
             _userRepository = userRepository;
         }
 
-        public async Task<User> GetUserByIdAsync(int UserId)
+        public async Task<User> GetUserByIdAsync(int userId)
         {
-            var user = await _userRepository.GetUserByIdAsync(UserId);
-            if (user == null)
-            { 
-                throw new KeyNotFoundException($"User with ID {UserId} not found.");
+            try
+            {
+                var user = await _userRepository.GetUserByIdAsync(userId);
+
+                if (user == null)
+                {
+                    throw new KeyNotFoundException($"User with ID {userId} not found.");
+                }
+
+                return user;
             }
-            return user;
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred while fetching user by ID.", ex);
+            }
         }
+
         public async Task<User> GetUserByEmailAsync(string email)
         {
-            var user = await _userRepository.GetUserByEmailAsync(email);
-            if (user == null)
+            try
             {
-                throw new KeyNotFoundException($"User with ID {email} not found.");
+                var user = await _userRepository.GetUserByEmailAsync(email);
+
+                if (user == null)
+                {
+                    throw new KeyNotFoundException($"User with email {email} not found.");
+                }
+
+                return user;
             }
-            return user;
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred while fetching user by email.", ex);
+            }
         }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            var users = await _userRepository.GetAllUsersAsync();
-            if(users == null)
+            try
             {
-                throw new KeyNotFoundException("No users found.");
+                var users = await _userRepository.GetAllUsersAsync();
+
+                if (users == null || !users.Any())
+                {
+                    throw new KeyNotFoundException("No users found.");
+                }
+
+                return users;
             }
-            return users;
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred while fetching users.", ex);
+            }
         }
 
         public async Task<IEnumerable<User>> GetUsersByRoleAsync(UserRole role)
         {
-            var users = await _userRepository.GetUsersByRoleAsync(role);
-            if (users == null)
+            try
             {
-                throw new KeyNotFoundException($"No users found for {role}.");
+                var users = await _userRepository.GetUsersByRoleAsync(role);
+
+                if (users == null || !users.Any())
+                {
+                    throw new KeyNotFoundException($"No users found for role {role}.");
+                }
+
+                return users;
             }
-            return users;
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred while fetching users by role.", ex);
+            }
+        }
+
+        public async Task RegisterCustomerAsync(CreateCustomerDto dto)
+        {
+            try
+            {
+                var user = new User
+                {
+                    UserId = 0, 
+                    Name = dto.Name,
+                    Email = dto.Email,
+                    PhoneNumber = dto.PhoneNumber,
+                    DateOfBirth = dto.DateOfBirth,
+                    Gender = (Gender)dto.Gender,
+                    AadhaarNumber = dto.AadhaarNumber,
+                    PANNumber = dto.PANNumber,
+                    AddressLine1 = dto.AddressLine1,
+                    City = dto.City,
+                    State = dto.State,
+                    Pincode = dto.Pincode,
+
+                    Role = UserRole.Customer,
+                    PasswordHash = HashPassword(dto.Password),
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await ValidateNewUserRulesAsync(user, dto.Password);
+
+                await _userRepository.RegisterUserAsync(user);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred while registering customer.", ex);
+            }
+        }
+
+        public async Task RegisterAgentAsync(CreateAgentDto dto)
+        {
+            try
+            {
+                var user = new User
+                {
+                    UserId = 0,
+                    Name = dto.Name,
+                    Email = dto.Email,
+                    PhoneNumber = dto.PhoneNumber,
+                    AddressLine1 = dto.AddressLine1,
+                    City = dto.City,
+                    State = dto.State,
+                    Pincode = dto.Pincode,
+
+                    Role = UserRole.Agent,
+                    PasswordHash = HashPassword(dto.Password),
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await ValidateNewUserRulesAsync(user, dto.Password);
+
+                await _userRepository.RegisterUserAsync(user);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred while registering agent.", ex);
+            }
+        }
+
+        public async Task RegisterAdminAsync(CreateAdminDto dto)
+        {
+            try
+            {
+                var user = new User
+                {
+                    UserId = 0,
+                    Name = dto.Name,
+                    Email = dto.Email,
+
+                    Role = UserRole.Admin,
+                    PasswordHash = HashPassword(dto.Password),
+                    IsActive = true,
+                    IsEmailVerified = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await ValidateNewUserRulesAsync(user, dto.Password);
+
+                await _userRepository.RegisterUserAsync(user);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred while registering admin.", ex);
+            }
+        }
+
+        public async Task UpdateUserAsync(UpdateUserDto dto)
+        {
+            try
+            {
+                User existingUser = await _userRepository.GetUserByIdAsync(dto.UserId);
+
+                if (existingUser == null)
+                {
+                    throw new KeyNotFoundException($"User with ID {dto.UserId} not found.");
+                }
+
+                existingUser.Name = dto.Name;
+                existingUser.PhoneNumber = dto.PhoneNumber;
+                existingUser.DateOfBirth = dto.DateOfBirth;
+                existingUser.Gender = dto.Gender.HasValue
+                    ? (Gender)dto.Gender.Value
+                    : null;
+                existingUser.AddressLine1 = dto.AddressLine1;
+                existingUser.City = dto.City;
+                existingUser.State = dto.State;
+                existingUser.Pincode = dto.Pincode;
+                existingUser.UpdatedAt = DateTime.Now;
+
+                await _userRepository.UpdateUserAsync(existingUser);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred while updating user.", ex);
+            }
+        }
+
+        public async Task ChangePasswordAsync(ChangePasswordDto dto)
+        {
+            try
+            {
+                User existingUser = await _userRepository.GetUserByIdAsync(dto.UserId);
+
+                if (existingUser == null)
+                {
+                    throw new KeyNotFoundException($"User with ID {dto.UserId} not found.");
+                }
+
+                bool isOldPasswordCorrect =
+                    VerifyPassword(dto.OldPassword, existingUser.PasswordHash);
+
+                if (!isOldPasswordCorrect)
+                {
+                    throw new InvalidOperationException("Old password is incorrect.");
+                }
+
+                if (dto.OldPassword == dto.NewPassword)
+                {
+                    throw new InvalidOperationException("New password cannot be same as old password.");
+                }
+
+                existingUser.PasswordHash = HashPassword(dto.NewPassword);
+                existingUser.UpdatedAt = DateTime.Now;
+
+                await _userRepository.UpdateUserAsync(existingUser);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred while changing password.", ex);
+            }
+        }
+
+        public async Task DeleteUserAsync(int userId)
+        {
+            try
+            {
+                User userExists = await _userRepository.GetUserByIdAsync(userId);
+
+                if (userExists == null)
+                {
+                    throw new KeyNotFoundException($"User with ID {userId} not found.");
+                }
+
+                await _userRepository.DeleteUserAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred while deleting user.", ex);
+            }
         }
 
 
@@ -93,128 +308,7 @@ namespace Insurance.Application.Services
             }
         }
 
-        public async Task RegisterCustomerAsync(CreateCustomerDto dto)
-        {
-            //  Map DTO fields to a real User Entity
-            var user = new User
-            {
-                Name = dto.Name,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                DateOfBirth = dto.DateOfBirth,
-                Gender = (Gender)dto.Gender,
-                AadhaarNumber = dto.AadhaarNumber,
-                PANNumber = dto.PANNumber,
-                AddressLine1 = dto.AddressLine1,
-                City = dto.City,
-                State = dto.State,
-                Pincode = dto.Pincode,
-
-                //  Set backend security rules automatically
-                Role = UserRole.Customer, // Hardcoded protection!
-                PasswordHash = HashPassword(dto.Password), // Turn plain text into hash
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await ValidateNewUserRulesAsync(user, dto.Password);
-            await _userRepository.RegisterUserAsync(user);
-        }
-
-        public async Task RegisterAgentAsync(CreateAgentDto dto)
-        {
-            var user = new User
-            {
-                Name = dto.Name,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                AddressLine1 = dto.AddressLine1,
-                City = dto.City,
-                State = dto.State,
-                Pincode = dto.Pincode,
-
-                Role = UserRole.Agent, // Safe automation
-                PasswordHash = HashPassword(dto.Password),
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await ValidateNewUserRulesAsync(user, dto.Password);
-            await _userRepository.RegisterUserAsync(user);
-        }
-
-        public async Task RegisterAdminAsync(CreateAdminDto dto)
-        {
-            var user = new User
-            {
-                Name = dto.Name,
-                Email = dto.Email,
-
-                Role = UserRole.Admin, // Safe automation
-                PasswordHash = HashPassword(dto.Password),
-                IsActive = true,
-                IsEmailVerified = true, // Admins can be pre-verified
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await ValidateNewUserRulesAsync(user, dto.Password);
-            await _userRepository.RegisterUserAsync(user);
-        }
-
-       
         
-
-        public async Task UpdateUserAsync(UpdateUserDto dto)
-        {
-            User existingUser = await _userRepository.GetUserByIdAsync(dto.UserId);
-            if (existingUser == null)
-            {
-                throw new KeyNotFoundException($"User with ID {dto.UserId} not found.");
-            }
-            existingUser.Name = dto.Name;
-            existingUser.PhoneNumber = dto.PhoneNumber;
-            existingUser.DateOfBirth = dto.DateOfBirth;
-            existingUser.Gender = dto.Gender.HasValue ? (Gender)dto.Gender.Value : null;
-            existingUser.AddressLine1 = dto.AddressLine1;
-            existingUser.City = dto.City;
-            existingUser.State = dto.State;
-            existingUser.Pincode = dto.Pincode;
-            existingUser.UpdatedAt = DateTime.Now;
-            await _userRepository.UpdateUserAsync(existingUser);
-        }
-
-        public async Task ChangePasswordAsync(ChangePasswordDto dto)
-        {
-            User existingUser= await _userRepository.GetUserByIdAsync(dto.UserId);
-            if (existingUser == null)
-            {
-                throw new KeyNotFoundException($"User with ID {dto.UserId} not found.");
-            }
-            bool isOldPasswordCorrect = VerifyPassword(dto.OldPassword, existingUser.PasswordHash);
-            if (!isOldPasswordCorrect)
-            {
-                throw new InvalidOperationException("The old password you entered is incorrect.");
-            }
-            if (dto.OldPassword == dto.NewPassword)
-            {
-                throw new InvalidOperationException("New password cannot be the same as your old password.");
-            }
-            // Securely hash the new password and apply it
-            existingUser.PasswordHash = HashPassword(dto.NewPassword);
-            existingUser.UpdatedAt = DateTime.Now;
-
-            await _userRepository.UpdateUserAsync(existingUser);
-        }
-
-        public async Task DeleteUserAsync(int userId)
-        {
-            User userExists = await _userRepository.GetUserByIdAsync(userId);
-            if (userExists == null)
-            {
-                throw new KeyNotFoundException($"User with ID {userId} not found.");
-            }
-            await _userRepository.DeleteUserAsync(userId);
-        }
 
        
     }

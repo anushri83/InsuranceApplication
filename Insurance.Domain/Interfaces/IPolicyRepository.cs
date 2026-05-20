@@ -11,7 +11,7 @@ namespace Insurance.Domain.Interfaces
         Task<Policy?> GetPolicyByPolicyIdAsync(int PolicyId);
 
         // Inserts a new insurance product into the system's catalog
-        Task AddPolicyAsync(Policy policy);
+        Task CreatePolicyAsync(Policy policy);
 
         // Modifies the terms, premiums, or details of an existing insurance policy
         Task UpdatePolicyAsync(Policy policy);

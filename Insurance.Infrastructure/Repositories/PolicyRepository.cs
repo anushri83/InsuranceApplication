@@ -39,7 +39,7 @@ public class PolicyRepository : IPolicyRepository
         }
     }
 
-    public async Task AddPolicyAsync(Policy policy)
+    public async Task CreatePolicyAsync(Policy policy)
     {
         try
         {
@@ -48,8 +48,7 @@ public class PolicyRepository : IPolicyRepository
         }
         catch (DbUpdateException ex)
         {
-            // This happens if a Database Constraint is broken 
-            // (e.g., trying to add a policy with an ID that already exists)
+            // This happens if a Database Constraint is broken (e.g., trying to add a policy with an ID that already exists)
             throw new InvalidOperationException("Could not save policy. Please check if the data violates database rules.", ex);
         }
         catch (Exception ex)

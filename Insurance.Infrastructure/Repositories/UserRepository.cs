@@ -40,6 +40,7 @@ namespace Insurance.Infrastructure.Repositories
             {
                 await _context.Users.AddAsync(user);
                 await _context.SaveChangesAsync();
+               
             }
             catch (DbUpdateException ex)
             {
@@ -62,8 +63,16 @@ namespace Insurance.Infrastructure.Repositories
                     _context.Entry(localInstance).State = EntityState.Detached;
                 }
 
-                _context.Users.Update(user);
-                await _context.SaveChangesAsync();
+               
+                try
+                {
+                    _context.Users.Update(user);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    throw new Exception("Database update failed");
+                }
             }
             catch (DbUpdateException ex)
             {
@@ -88,8 +97,10 @@ namespace Insurance.Infrastructure.Repositories
                     {
                         _context.Entry(localInstance).State = EntityState.Detached;
                     }
+
                     _context.Users.Remove(user);
                     await _context.SaveChangesAsync();
+                    
                 }
                 catch (DbUpdateException ex)
                 {

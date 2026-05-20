@@ -1,4 +1,5 @@
-﻿using Insurance.Application.Interfaces;
+﻿using Insurance.Application.DTOs.UserDTO;
+using Insurance.Application.Interfaces;
 using Insurance.Domain.Interfaces;
 using Insurance.Domain.Models;
 using Insurance.Infrastructure.Repositories;
@@ -86,20 +87,36 @@ namespace Insurance.Application.Services
             }
         }
 
-        public async Task<IEnumerable<User>> GetCustomersByAgentIdAsync(int agentId)
+        public async Task<IEnumerable<AgentCustomerResponseDto>> GetCustomersByAgentIdAsync(int agentId)
         {
             try
             {
                 var customers = await _customerPolicyRepository.GetCustomersByAgentIdAsync(agentId);
-                if(customers == null)
+                if (customers == null)
                 {
-                    return Enumerable.Empty<User>();
+                    return Enumerable.Empty<AgentCustomerResponseDto>(); 
                 }
-                return customers;
+
+                var dtoList = new List<AgentCustomerResponseDto>();
+
+                foreach (var customer in customers)
+                {
+                    dtoList.Add(new AgentCustomerResponseDto
+                    {
+                        UserId = customer.UserId,
+                        Name = customer.Name,
+                        Email = customer.Email,
+                        PhoneNumber = customer.PhoneNumber,
+                        City = customer.City,
+                        IsActive = customer.IsActive,
+                    });
+                }
+
+                return dtoList;
             }
             catch (Exception)
             {
-                throw new Exception("Error occured at service layer");
+                throw new Exception("Error occurred at service layer");
             }
         }
 

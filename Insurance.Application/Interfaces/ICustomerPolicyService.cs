@@ -1,4 +1,5 @@
-﻿using Insurance.Domain.Models;
+﻿using Insurance.Application.DTOs.UserDTO;
+using Insurance.Domain.Models;
 
 namespace Insurance.Application.Interfaces
 {
@@ -8,7 +9,7 @@ namespace Insurance.Application.Interfaces
         Task<CustomerPolicy> GetCustomerPolicyByIdAsync(int customerPolicyId);
         Task<IEnumerable<CustomerPolicy>> GetByUserIdAsync(int userId);
         Task<IEnumerable<CustomerPolicy>> GetByAgentIdAsync(int agentId);
-        Task<IEnumerable<User>> GetCustomersByAgentIdAsync(int agentId);
+        Task<IEnumerable<AgentCustomerResponseDto>> GetCustomersByAgentIdAsync(int agentId);
         Task AddCustomerPolicyAsync(CustomerPolicy customerPolicy);
         Task UpdateCustomerPolicyAsync(CustomerPolicy customerPolicy);
         Task DeleteCustomerPolicyAsync(int customerPolicyId);

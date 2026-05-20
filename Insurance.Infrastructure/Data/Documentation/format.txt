@@ -8,7 +8,10 @@
 
 do this Later ->
 
-
+user controllert -> 
+    // _emailService.SendResetLink(user.Email, generatedToken); 
+    // bool isTokenValid = await _userService.VerifyTokenAsync(user.UserId, dto.Token);
+        // if (!isTokenValid) return BadRequest("Invalid or expired token.");
 
 1. Premium Calculator (Age Risk Rule)
 The Math Class: PolicyService.cs

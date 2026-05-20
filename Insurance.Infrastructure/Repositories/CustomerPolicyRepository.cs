@@ -65,6 +65,7 @@ namespace Insurance.Infrastructure.Repositories
         {
             return await _context.CustomerPolicies.Include(cp => cp.User).Where(cp => cp.AgentId == agentId)
                 .Select(cp => cp.User).Distinct().ToListAsync();
+
         }
 
         public async Task AddCustomerPolicyAsync(CustomerPolicy customerPolicy)

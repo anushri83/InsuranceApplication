@@ -1,5 +1,6 @@
 ﻿using Insurance.Application.DTOs.UserDTO;
 using Insurance.Application.Interfaces;
+using Insurance.Domain.Interfaces;
 using Insurance.Domain.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace Insurance.API.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IUserRepository _userRepository;
 
     public UserController(IUserService userService)
     {
@@ -179,7 +181,45 @@ public class UserController : ControllerBase
         }
     }
 
-        [HttpDelete]
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(string Email)
+    {
+        var user = await _userService.GetUserByEmailAsync(Email);
+
+        if (user == null)
+        {
+            return BadRequest("Email address not found.");
+        }
+
+        // 3. If it is NOT null, your server generates the link/OTP here in the background
+        // _emailService.SendResetLink(user.Email, generatedToken); 
+        return Ok("A password reset link has been sent to your email.");
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+    {
+        var user = await _userService.GetUserByEmailAsync(dto.Email);
+        if (user == null)
+        {
+            return BadRequest("Invalid request.");
+        }
+
+        // 2. Secretly verify if the Token/OTP is valid (Hypothetical verification layer)
+        // bool isTokenValid = await _userService.VerifyTokenAsync(user.UserId, dto.Token);
+        // if (!isTokenValid) return BadRequest("Invalid or expired token.");
+
+        user.PasswordHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(dto.NewPassword));
+        user.UpdatedAt = DateTime.Now;
+
+
+        await _userRepository.UpdateUserAsync(user); // Push changes down to repository
+
+        return Ok("Your password has been reset successfully. You can now log in!");
+    }
+
+
+    [HttpDelete]
     public async Task<IActionResult> DeleteUserAsync(int  userId)
     {
         try

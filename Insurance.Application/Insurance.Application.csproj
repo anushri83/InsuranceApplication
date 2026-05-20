@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Folder Include="DTOs\CustomerPolicyDTO\" />
-    <Folder Include="DTOs\PolicyDTO\" />
   </ItemGroup>
 
   <PropertyGroup>

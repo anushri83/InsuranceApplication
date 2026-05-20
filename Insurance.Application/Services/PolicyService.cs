@@ -1,4 +1,5 @@
-﻿ using Insurance.Application.Interfaces;
+﻿
+using Insurance.Application.Interfaces;
 using Insurance.Domain.Interfaces;
 using Insurance.Domain.Models;
 
@@ -7,72 +8,81 @@ namespace Insurance.Application.Services;
 public class PolicyService : IPolicyService
 {
     private readonly IPolicyRepository _repository;
-	public PolicyService(IPolicyRepository repository)
-	{
-		_repository = repository;
-	}
 
-    public async Task<IEnumerable<Policy>> GetAllPolicyAsync()
+    public PolicyService(IPolicyRepository repository)
+    {
+        _repository = repository;
+    }
+
+    public async Task<IEnumerable<Policy>> GetAllPoliciesAsync()
     {
         try
         {
             var policies = await _repository.GetAllPolicyAsync();
 
-            // If the list is empty, that's not a crash, but we can handle it
             if (policies == null || !policies.Any())
             {
-                // We can return an empty list or throw a specific error
                 return Enumerable.Empty<Policy>();
             }
+
             return policies;
         }
-
         catch (Exception ex)
         {
-            throw new Exception("Error occured at service layer", ex); 
+            throw new Exception("Error occurred while fetching all policies.", ex);
         }
     }
 
-    public async Task<Policy> GetPolicyByPolicyIdAsync(int PolicyId)
+    public async Task<Policy> GetPolicyByPolicyIdAsync(int policyId)
     {
-        try 
+        try
         {
-            if (PolicyId < 0)
-            { 
-                throw new ArgumentException("Id Invalid");
+            if (policyId <= 0)
+            {
+                throw new ArgumentException("Invalid Policy ID.");
             }
-            var policy = await _repository.GetPolicyByPolicyIdAsync(PolicyId);
+
+            var policy = await _repository.GetPolicyByPolicyIdAsync(policyId);
+
             if (policy == null)
             {
-                throw new KeyNotFoundException($"No policy with ID {PolicyId}");
+                throw new KeyNotFoundException(
+                    $"No policy found with ID {policyId}.");
             }
+
             return policy;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw new Exception("Error occured at service layer");
+            throw new Exception(
+                "Error occurred while fetching policy by ID.", ex);
         }
-
     }
-    public async Task AddPolicyAsync(Policy policy)
+
+    public async Task CreatePolicyAsync(Policy policy)
     {
         try
         {
             if (policy == null)
             {
-                throw new ArgumentNullException(nameof(policy), "Policy data cannot be null.");
+                throw new ArgumentNullException(
+                    nameof(policy),
+                    "Policy data cannot be null.");
             }
+
             if (policy.PremiumAmount <= 0)
             {
-                throw new Exception("Premium Amount cannot be 0");
+                throw new InvalidOperationException(
+                    "Premium amount must be greater than 0.");
             }
-            await _repository.AddPolicyAsync(policy);
+
+            await _repository.CreatePolicyAsync(policy);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw new Exception("Error occured at service layer");
+            throw new Exception(
+                "Error occurred while creating policy.", ex);
         }
-        
     }
 
     public async Task UpdatePolicyAsync(Policy policy)
@@ -81,33 +91,51 @@ public class PolicyService : IPolicyService
         {
             if (policy == null)
             {
-                throw new ArgumentNullException(nameof(policy), "Policy data cannot be null.");
+                throw new ArgumentNullException(
+                    nameof(policy),
+                    "Policy data cannot be null.");
             }
+
             if (policy.PremiumAmount <= 0)
             {
-                throw new Exception("Premium Amount cannot be 0");
+                throw new InvalidOperationException(
+                    "Premium amount must be greater than 0.");
             }
+
             await _repository.UpdatePolicyAsync(policy);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw new Exception("Error occured at service layer");
+            throw new Exception(
+                "Error occurred while updating policy.", ex);
         }
     }
 
-    public async Task DeletePolicyAsync(int PolicyId)
+    public async Task DeletePolicyAsync(int policyId)
     {
         try
         {
-            if (PolicyId <= 0)
+            if (policyId <= 0)
             {
-                throw new Exception("PolicyId cannot be less than 0");
+                throw new ArgumentException(
+                    "Policy ID must be greater than 0.");
             }
-            await _repository.DeletePolicyAsync(PolicyId);
+
+            var policy =
+                await _repository.GetPolicyByPolicyIdAsync(policyId);
+
+            if (policy == null)
+            {
+                throw new KeyNotFoundException(
+                    $"No policy found with ID {policyId}.");
+            }
+
+            await _repository.DeletePolicyAsync(policyId);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw new Exception("Error occured at service layer");
+            throw new Exception(
+                "Error occurred while deleting policy.", ex);
         }
     }
 
@@ -121,12 +149,13 @@ public class PolicyService : IPolicyService
             {
                 return Enumerable.Empty<Policy>();
             }
+
             return policies;
         }
-
         catch (Exception ex)
         {
-            throw new Exception("Error occured at service layer", ex);
+            throw new Exception(
+                "Error occurred while fetching active policies.", ex);
         }
     }
 
@@ -134,16 +163,19 @@ public class PolicyService : IPolicyService
     {
         try
         {
-            var policies =  await _repository.GetInActivePoliciesAsync();
-            if(policies == null || !policies.Any())
+            var policies = await _repository.GetInActivePoliciesAsync();
+
+            if (policies == null || !policies.Any())
             {
                 return Enumerable.Empty<Policy>();
             }
+
             return policies;
         }
         catch (Exception ex)
         {
-            throw new Exception("Error occured at service layer", ex);
+            throw new Exception(
+                "Error occurred while fetching inactive policies.", ex);
         }
     }
 }

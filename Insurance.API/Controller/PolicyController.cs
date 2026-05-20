@@ -21,7 +21,7 @@ public class PolicyController : ControllerBase
     {
         try
         {
-                        var policies = await _policyService.GetAllPolicyAsync();
+            var policies = await _policyService.GetAllPoliciesAsync();
             return Ok(policies); // Returns HTTP 200 with the data
         }
         catch (Exception ex)
@@ -84,7 +84,7 @@ public class PolicyController : ControllerBase
             {
                 return BadRequest(ModelState);
             }
-            await _policyService.AddPolicyAsync(policy);
+            await _policyService.CreatePolicyAsync(policy);
             return Ok("Policy Added successfully");
         }
         catch (ArgumentException ex)

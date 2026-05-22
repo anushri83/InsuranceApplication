@@ -1,4 +1,5 @@
-﻿using Insurance.Application.Interfaces;
+﻿using Insurance.Application.DTOs.ClaimDTO;
+using Insurance.Application.Interfaces;
 using Insurance.Domain.Interfaces;
 using Insurance.Domain.Models;
 using Insurance.Infrastructure.Repositories;
@@ -20,16 +21,16 @@ namespace Insurance.Application.Services
             _policyRepository = policyRepository;
         }
 
-        public async Task<IEnumerable<Claim>> GetAllClaimsAsync()
+        public async Task<IEnumerable<ClaimResponseDto>> GetAllClaimsAsync()
         {
             try
             {
                 var claims = await _claimRepository.GetAllClaimsAsync();
                 if(claims == null)
                 {
-                    return Enumerable.Empty<Claim>();
+                    throw new KeyNotFoundException("No claims found.");
                 }
-                return claims;
+                return MapResponseDtoList(claims);
             }
             catch (Exception)
             {
@@ -39,7 +40,7 @@ namespace Insurance.Application.Services
         }
 
 
-        public async Task<Claim> GetClaimByClaimIdAsync(int claimId)
+        public async Task<ClaimResponseDto> GetClaimByClaimIdAsync(int claimId)
         {
             try
             {
@@ -48,7 +49,7 @@ namespace Insurance.Application.Services
                 {
                     throw new KeyNotFoundException($"Customer policy with ID {claimId} not found.");
                 }
-                return claim;
+                return MapResponseDto(claim);
             }
             catch (Exception)
             {
@@ -57,7 +58,7 @@ namespace Insurance.Application.Services
             }
         }
 
-        public async Task<IEnumerable<Claim>> GetClaimsByUserIdAsync(int UserId)
+        public async Task<IEnumerable<ClaimResponseDto>> GetClaimsByUserIdAsync(int UserId)
         {
             try
             {
@@ -66,7 +67,7 @@ namespace Insurance.Application.Services
                 {
                     throw new KeyNotFoundException($"Claim with ID {UserId} not found.");
                 }
-                return claims;
+                return MapResponseDtoList(claims);
             }
             catch (Exception)
             {
@@ -74,11 +75,11 @@ namespace Insurance.Application.Services
             }
         }
        
-        public async Task AddClaimAsync(Claim claim)
+        public async Task AddClaimAsync(CreateClaimDto dto)
         {
             try
             {
-                var customerpolicy = await _customerPolicyRepository.GetCustomerPolicyByIdAsync(claim.CustomerPolicyId);
+                var customerpolicy = await _customerPolicyRepository.GetCustomerPolicyByIdAsync(dto.CustomerPolicyId);
                 if (customerpolicy == null)
                 {
                     throw new KeyNotFoundException("Cannot file claim: The associated Customer Policy does not exist.");
@@ -100,14 +101,19 @@ namespace Insurance.Application.Services
                     throw new KeyNotFoundException("The associated Policy does not exist.");
                 }
 
-                if (claim.ClaimAmount > policyDetails.PremiumAmount * 10) // Example rule: Max claim cap
+                if (dto.ClaimAmount > policyDetails.PremiumAmount * 10) // Example rule: Max claim cap
                 {
                     throw new InvalidOperationException("Claim amount exceeds the policy coverage limit.");
                 }
 
                 // Force status to Pending (prevents 'Self-Approval' hacks)
-                claim.Status = ClaimStatus.Pending;
-                claim.CreatedAt = DateTime.Now;
+                var claim = new Claim
+                {
+                    CustomerPolicyId = dto.CustomerPolicyId,
+                    ClaimAmount = dto.ClaimAmount,
+                    Status = ClaimStatus.Pending,
+                    CreatedAt = DateTime.Now
+                };
                 await _claimRepository.AddClaimAsync(claim);
             }
             catch (Exception)
@@ -117,8 +123,31 @@ namespace Insurance.Application.Services
 
         }
 
-       
+        public async Task UpdateClaimAsync(UpdateClaimDto dto)
+        {
+            try
+            {
+                var existingclaim = await _claimRepository.GetClaimByClaimIdAsync(dto.ClaimId);
+                if (existingclaim == null)
+                {
+                    throw new KeyNotFoundException($"Claim with ID {dto.ClaimId} not found.");
+                }
+                var claim = new Claim
+                {
+                    ClaimId = dto.ClaimId,
+                    CustomerPolicyId = existingclaim.CustomerPolicyId,
+                    ClaimAmount = dto.ClaimAmount,
+                    Status = (ClaimStatus)dto.Status,
+                    UpdatedAt = DateTime.Now
+                };
+                await _claimRepository.UpdateClaimAsync(claim);
+            }
+            catch (Exception)
+            {
 
+                throw;
+            }
+        }
         public async Task DeleteClaimAsync(int claimId)
         {
             var claim = _claimRepository.GetClaimByClaimIdAsync(claimId).Result;
@@ -152,6 +181,26 @@ namespace Insurance.Application.Services
             await _claimRepository.UpdateClaimAsync(claim);
         }
 
+        private ClaimResponseDto MapResponseDto(Claim cp)
+        {
+            return new ClaimResponseDto
+            {
+                ClaimId = cp.ClaimId,
+                CustomerPolicyId = cp.CustomerPolicyId,
+                // Navigates: Claim -> CustomerPolicy -> Policy -> PolicyName
+                PolicyName = cp.customerPolicy?.Policy?.PolicyName ?? "Unknown Plan", 
+                // Navigates: Claim -> CustomerPolicy -> User -> Name
+                CustomerName = cp.customerPolicy?.User?.Name ?? "Unknown Customer",
+                ClaimAmount = cp.ClaimAmount,
+                Status = cp.Status.ToString(), // Convert enum to string for better readability in DTO
+                CreatedAt = cp.CreatedAt
+            };
+        }
+        private IEnumerable<ClaimResponseDto> MapResponseDtoList(IEnumerable<Claim> claims)
+        {
+            return claims.Select(MapResponseDto);
+        }
+          
 
     }
 }

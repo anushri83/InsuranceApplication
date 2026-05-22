@@ -19,6 +19,8 @@ public class Claim
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
+    public DateTime? UpdatedAt { get; set; }
+
     // Use ? here because this is a navigation property
     public CustomerPolicy? customerPolicy { get; set; }
 

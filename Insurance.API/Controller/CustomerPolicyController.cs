@@ -1,4 +1,5 @@
-﻿using Insurance.Application.Interfaces;
+﻿using Insurance.Application.DTOs.CustomerPolicyDTO;
+using Insurance.Application.Interfaces;
 using Insurance.Domain.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -108,7 +109,7 @@ public class CustomerPolicyController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddCustomerPolicyAsync(CustomerPolicy customerPolicy)
+    public async Task<IActionResult> AddCustomerPolicyAsync([FromBody] PurchasePolicyDto dto)
     {
         try
         {
@@ -116,7 +117,7 @@ public class CustomerPolicyController : ControllerBase
             {
                 return BadRequest(ModelState);
             }
-            await _customerPolicyService.AddCustomerPolicyAsync(customerPolicy);
+            await _customerPolicyService.AddCustomerPolicyAsync(dto);
             return Ok("Customer policy added successfully.");
         }
         catch (ArgumentException ex)
@@ -130,11 +131,11 @@ public class CustomerPolicyController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> UpdateCustomerPolicyAsync(CustomerPolicy customerPolicy)
+    public async Task<IActionResult> UpdateCustomerPolicyAsync([FromBody] UpdateCustomerPolicyStatusDto dto)
     {
         try
         {
-            await _customerPolicyService.UpdateCustomerPolicyAsync(customerPolicy);
+            await _customerPolicyService.UpdateCustomerPolicyAsync(dto);
             return Ok("Customer policy updated successfully.");
         }
         catch (ArgumentException ex)
@@ -147,7 +148,7 @@ public class CustomerPolicyController : ControllerBase
         }
     }
 
-    [HttpDelete]
+    [HttpDelete("{customerPolicyId}")]
     public async Task<IActionResult> DeleteCustomerPolicyAsync(int customerPolicyId)
     {
         try

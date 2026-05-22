@@ -15,7 +15,6 @@ public class CustomerPolicy
     [ForeignKey("Policy")]
     public int PolicyId { get; set; } // The Insurance Product
 
-    // --- NEW FIELD ---
     [ForeignKey("Agent")]
     public int? AgentId { get; set; } // The Agent who sold the policy (can be null if bought directly)
 
@@ -27,6 +26,8 @@ public class CustomerPolicy
 
     public CustomerPolicyStatus Status { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    public DateTime? UpdatedAt { get; set; } = DateTime.Now;
 
     // Navigation properties
     public User? User { get; set; } // The Customer object

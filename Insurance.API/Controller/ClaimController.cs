@@ -1,4 +1,5 @@
-﻿using Insurance.Application.Interfaces;
+﻿using Insurance.Application.DTOs.ClaimDTO;
+using Insurance.Application.Interfaces;
 using Insurance.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -61,7 +62,7 @@ namespace Insurance.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddClaimAsync([FromBody] Claim claim) 
+        public async Task<IActionResult> AddClaimAsync([FromBody] CreateClaimDto dto)
         {
             try
             {
@@ -69,7 +70,7 @@ namespace Insurance.API.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                await _claimService.AddClaimAsync(claim);
+                await _claimService.AddClaimAsync(dto);
                 return Ok("Claim submitted successfully and is now Pending.");
                 //return CreatedAtAction(nameof(GetClaimByClaimIdAsync), new { id = newClaim.ClaimId }, newClaim);
             }
@@ -84,6 +85,32 @@ namespace Insurance.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpPut("")]
+        public async Task UpdateClaimAsync(UpdateClaimDto dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)    // Checks if the incoming data is valid based on the model's data annotations
+                {
+                    BadRequest(ModelState);
+                }
+                await _claimService.UpdateClaimAsync(dto);
+                Ok("Claim record updated.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
 

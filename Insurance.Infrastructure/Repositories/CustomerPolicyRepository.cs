@@ -19,7 +19,9 @@ namespace Insurance.Infrastructure.Repositories
         {
             try
             {
-                 return await _context.CustomerPolicies.Include(cp => cp.User).Include(cp=> cp.Policy).ToListAsync();
+                 return await _context.CustomerPolicies.Include(cp => cp.User)
+                .Include(cp => cp.Policy)
+                .Include(cp => cp.Agent).ToListAsync();
             }
             catch (SqlException ex)
             {
@@ -32,8 +34,11 @@ namespace Insurance.Infrastructure.Repositories
             try
             {
                 // Use FirstOrDefaultAsync instead of FindAsync when using Include
-                return await _context.CustomerPolicies.Include(cp => cp.User).Include(cp => cp.Policy)
-                    .FirstOrDefaultAsync(cp => cp.CustomerPolicyId == customerPolicyId);
+                return await _context.CustomerPolicies
+                    .Include(cp => cp.User)
+                 .Include(cp => cp.Policy)
+                  .Include(cp => cp.Agent)
+                  .FirstOrDefaultAsync(cp => cp.CustomerPolicyId == customerPolicyId);
 
             }
             catch (SqlException ex)
@@ -48,8 +53,9 @@ namespace Insurance.Infrastructure.Repositories
             try
             {
                 return await _context.CustomerPolicies
+                .Include(cp => cp.User)
                 .Include(cp => cp.Policy)
-                .Include(cp => cp.Agent) // To see which agent is helping them
+                .Include(cp => cp.Agent)
                 .Where(cp => cp.UserId == userId)
                 .ToListAsync();
 
@@ -63,7 +69,9 @@ namespace Insurance.Infrastructure.Repositories
 
         public async Task<IEnumerable<User>> GetCustomersByAgentIdAsync(int agentId)
         {
-            return await _context.CustomerPolicies.Include(cp => cp.User).Where(cp => cp.AgentId == agentId)
+            return await _context.CustomerPolicies
+                .Include(cp => cp.Policy)
+                .Include(cp => cp.Agent)
                 .Select(cp => cp.User).Distinct().ToListAsync();
 
         }

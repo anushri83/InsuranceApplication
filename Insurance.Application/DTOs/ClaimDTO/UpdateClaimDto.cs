@@ -5,13 +5,16 @@ using System.Text;
 
 namespace Insurance.Application.DTOs.ClaimDTO
 {
-    public class CreateClaimDto
+    public class UpdateClaimDto
     {
         [Required]
-        public int CustomerPolicyId { get; set; } // Which active policy are they claiming against?
+        public int ClaimId { get; set; }
 
         [Required]
         [Range(0.01, double.MaxValue, ErrorMessage = "Claim amount must be greater than zero.")]
-        public decimal ClaimAmount { get; set; } // How much money are they requesting?
+        public decimal ClaimAmount { get; set; } // 💡 Added this so it can be updated!
+
+        [Required]
+        public int Status { get; set; } // Maps to your ClaimStatus Enum
     }
 }

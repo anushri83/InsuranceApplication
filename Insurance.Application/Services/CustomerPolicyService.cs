@@ -1,4 +1,5 @@
-﻿using Insurance.Application.DTOs.UserDTO;
+﻿using Insurance.Application.DTOs.CustomerPolicyDTO;
+using Insurance.Application.DTOs.UserDTO;
 using Insurance.Application.Interfaces;
 using Insurance.Domain.Interfaces;
 using Insurance.Domain.Models;
@@ -18,25 +19,30 @@ namespace Insurance.Application.Services
             _policyRepository = policyRepository;
         }
 
-        public async Task<IEnumerable<CustomerPolicy>> GetAllCustomerPoliciesAsync() 
+        public async Task<IEnumerable<CustomerPolicyResponseDto>> GetAllCustomerPoliciesAsync()
         {
             try
             {
                 var customerPolicies = await _customerPolicyRepository.GetAllCustomerPoliciesAsync();
                 if (customerPolicies == null)
                 {
-                    return Enumerable.Empty<CustomerPolicy>();
+                    throw new KeyNotFoundException($"Customer policies not found.");
                 }
-                return customerPolicies;
-            }
-            catch (Exception)
-            {
 
-                throw new Exception("Error occured at service layer"); ;
+                // 💡 FIXED: Changed MapToResponseDto to MapToResponseDtoList
+                return MapToResponseDtoList(customerPolicies);
             }
-            
+            catch (KeyNotFoundException)
+            {
+                throw; // Let our specific "Not Found" message pass through cleanly
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred at service layer", ex);
+            }
         }
-        public async Task<CustomerPolicy> GetCustomerPolicyByIdAsync(int customerPolicyId)
+
+        public async Task<CustomerPolicyResponseDto> GetCustomerPolicyByIdAsync(int customerPolicyId)
         {
             try
             {
@@ -45,7 +51,7 @@ namespace Insurance.Application.Services
                 {
                     throw new KeyNotFoundException($"Customer policy with ID {customerPolicyId} not found.");
                 }
-                return customerPolicy;
+                return MapToResponseDto(customerPolicy);
             }
             catch (Exception)
             {
@@ -53,16 +59,17 @@ namespace Insurance.Application.Services
             }
             
         }
-        public async Task<IEnumerable<CustomerPolicy>> GetByUserIdAsync(int userId)
+
+        public async Task<IEnumerable<CustomerPolicyResponseDto>> GetByUserIdAsync(int userId)
         {
             try
             {
                 var customerPolicies = await _customerPolicyRepository.GetByUserIdAsync(userId);
                 if (customerPolicies == null)
                 {
-                    return Enumerable.Empty<CustomerPolicy>();
+                    throw new KeyNotFoundException($"Customer policies with User ID {userId} not found.");
                 }
-                return customerPolicies;
+                return MapToResponseDtoList(customerPolicies);
             }
             catch (Exception)
             {
@@ -70,16 +77,17 @@ namespace Insurance.Application.Services
             }
             
         }
-        public async Task<IEnumerable<CustomerPolicy>> GetByAgentIdAsync(int agentId)
+
+        public async Task<IEnumerable<CustomerPolicyResponseDto>> GetByAgentIdAsync(int agentId)
         {
             try
             {
                 var customerPolicies = await _customerPolicyRepository.GetByAgentIdAsync(agentId);
                 if(customerPolicies == null)
                 {
-                    return Enumerable.Empty<CustomerPolicy>();
+                    throw new KeyNotFoundException($"Customer policies with Agent ID {agentId} not found.");
                 }
-                return customerPolicies;
+                return MapToResponseDtoList(customerPolicies);
             }
             catch (Exception)
             {
@@ -94,7 +102,7 @@ namespace Insurance.Application.Services
                 var customers = await _customerPolicyRepository.GetCustomersByAgentIdAsync(agentId);
                 if (customers == null)
                 {
-                    return Enumerable.Empty<AgentCustomerResponseDto>(); 
+                    throw new KeyNotFoundException($"Customer policies for Agent ID {agentId} not found.");
                 }
 
                 var dtoList = new List<AgentCustomerResponseDto>();
@@ -121,26 +129,29 @@ namespace Insurance.Application.Services
         }
 
 
-        public async Task AddCustomerPolicyAsync(CustomerPolicy customerPolicy)
+        public async Task AddCustomerPolicyAsync(PurchasePolicyDto dto)
         {
             try
             {
-                var customerpolicy = await _customerPolicyRepository.GetCustomerPolicyByIdAsync(customerPolicy.CustomerPolicyId);
-                var policy = await _policyRepository.GetPolicyByPolicyIdAsync(customerPolicy.PolicyId);
+                var policy = await _policyRepository.GetPolicyByPolicyIdAsync(dto.PolicyId);
 
-                if(policy == null)
+                if (policy == null)
                 {
-                    throw new Exception("Policy does not exist.");
+                    throw new KeyNotFoundException($"Policy with ID {dto.PolicyId} does not exist.");
                 }
-                  
-                if (customerpolicy != null)
+
+                var customerPolicy = new CustomerPolicy
                 {
-                    throw new KeyNotFoundException(" The associated Customer Policy already exist.");
-                }
-                customerPolicy.StartDate = DateTime.Now;
-                // Automatically add months based on the policy rules
-                customerPolicy.EndDate = customerPolicy.StartDate.AddMonths(policy.DurationInMonth);
-                customerPolicy.Status = CustomerPolicyStatus.Active;
+                    CustomerPolicyId = 0,
+                    UserId = dto.UserId,
+                    PolicyId = dto.PolicyId,
+                    AgentId = dto.AgentId,
+                    StartDate = DateTime.Now,
+                    EndDate = DateTime.Now.AddMonths(policy.DurationInMonth),
+                    Status = CustomerPolicyStatus.Active,
+                    CreatedAt = DateTime.Now
+                };
+
                 await _customerPolicyRepository.AddCustomerPolicyAsync(customerPolicy);
 
             }
@@ -148,18 +159,35 @@ namespace Insurance.Application.Services
             {
                 throw new Exception("Error occured at service layer");
             }
-            
-            
         }
-        public async Task UpdateCustomerPolicyAsync(CustomerPolicy customerPolicy)
+
+        public async Task UpdateCustomerPolicyAsync(UpdateCustomerPolicyStatusDto dto)
         {
             try
             {
+                var customerPolicy = await _customerPolicyRepository.GetCustomerPolicyByIdAsync(dto.CustomerPolicyId);
                 if (customerPolicy == null)
+                {
+                    throw new KeyNotFoundException($"Customer policy with ID {dto.CustomerPolicyId} not found.");
+                }
+                if (dto == null)
                 {
                     throw new KeyNotFoundException("Customer policy data cannot be null.");
                 }
-                await _customerPolicyRepository.UpdateCustomerPolicyAsync(customerPolicy);
+
+                var updatepolicy = new CustomerPolicy
+                {
+                    CustomerPolicyId = dto.CustomerPolicyId,
+                    UserId = customerPolicy.UserId,
+                    PolicyId = customerPolicy.PolicyId,
+                    AgentId = customerPolicy.AgentId,
+                    StartDate = customerPolicy.StartDate,
+                    EndDate = customerPolicy.EndDate,
+                    Status = (CustomerPolicyStatus)dto.Status,
+                    CreatedAt = customerPolicy.CreatedAt,
+                    UpdatedAt = DateTime.Now
+                };
+                await _customerPolicyRepository.UpdateCustomerPolicyAsync(updatepolicy);
             }
             catch (Exception)
             {
@@ -204,6 +232,34 @@ namespace Insurance.Application.Services
 
             return totalCommission;
         }
+
+        private CustomerPolicyResponseDto MapToResponseDto(CustomerPolicy cp)
+        {
+            return new CustomerPolicyResponseDto
+            {
+                CustomerPolicyId = cp.CustomerPolicyId,
+                UserId = cp.UserId,
+                CustomerName = cp.User?.Name ?? "Unknown Customer", // Handle null User reference cp.User?.Name  grabs the name if the user exists, and ?? "Unknown Customer" gives "uunknown customer" they don't.
+                PolicyId = cp.PolicyId,
+                PolicyName = cp.Policy?.PolicyName ?? "Unknown Plan",
+                PremiumAmount = cp.Policy?.PremiumAmount ?? 0,
+                AgentName = cp.Agent != null ? cp.Agent.Name : "Direct Online", // If there's an agent, show their name; otherwise, it's a direct online purchase.
+                StartDate = cp.StartDate,
+                EndDate = cp.EndDate,
+                Status = cp.Status.ToString()
+            };
+        }
+
+        //Converts a LIST of database rows into a LIST of clean DTOs .
+        private IEnumerable<CustomerPolicyResponseDto> MapToResponseDtoList(IEnumerable<CustomerPolicy> records)
+        {
+            //  If the list is completely missing, return an empty list [] instead of crashing.
+            if (records == null) return Enumerable.Empty<CustomerPolicyResponseDto>();
+
+            // Loop through every single row, convert it using our single row mapper, and save it as a list.
+            return records.Select(MapToResponseDto).ToList(); //select acts as a for each loop 
+        }
+
 
 
     }

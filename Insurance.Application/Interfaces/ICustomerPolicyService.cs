@@ -1,18 +1,27 @@
-﻿using Insurance.Application.DTOs.UserDTO;
+﻿using Insurance.Application.DTOs.CustomerPolicyDTO;
+using Insurance.Application.DTOs.UserDTO;
 using Insurance.Domain.Models;
 
 namespace Insurance.Application.Interfaces
 {
     public interface ICustomerPolicyService
     {
-        Task<IEnumerable<CustomerPolicy>> GetAllCustomerPoliciesAsync();
-        Task<CustomerPolicy> GetCustomerPolicyByIdAsync(int customerPolicyId);
-        Task<IEnumerable<CustomerPolicy>> GetByUserIdAsync(int userId);
-        Task<IEnumerable<CustomerPolicy>> GetByAgentIdAsync(int agentId);
+        Task<IEnumerable<CustomerPolicyResponseDto>> GetAllCustomerPoliciesAsync();
+
+        Task<CustomerPolicyResponseDto> GetCustomerPolicyByIdAsync(int customerPolicyId);
+
+        Task<IEnumerable<CustomerPolicyResponseDto>> GetByUserIdAsync(int userId);
+
+        Task<IEnumerable<CustomerPolicyResponseDto>> GetByAgentIdAsync(int agentId);
+
         Task<IEnumerable<AgentCustomerResponseDto>> GetCustomersByAgentIdAsync(int agentId);
-        Task AddCustomerPolicyAsync(CustomerPolicy customerPolicy);
-        Task UpdateCustomerPolicyAsync(CustomerPolicy customerPolicy);
+
+        Task AddCustomerPolicyAsync(PurchasePolicyDto dto);
+
+        Task UpdateCustomerPolicyAsync(UpdateCustomerPolicyStatusDto dto);
+
         Task DeleteCustomerPolicyAsync(int customerPolicyId);
+
         Task<decimal> CalculateAgentCommissionAsync(int agentId);
 
     }

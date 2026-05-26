@@ -44,6 +44,7 @@ builder.Services.AddScoped<IPolicyService, PolicyService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICustomerPolicyService, CustomerPolicyService>();
 builder.Services.AddScoped<IClaimService, ClaimService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // --- STEP B: Configure the HTTP Pipeline ---
 

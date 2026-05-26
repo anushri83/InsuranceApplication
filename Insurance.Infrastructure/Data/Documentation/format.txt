@@ -1,7 +1,7 @@
 ﻿ModelState.IsActive() -> check if the model state is valid before processing the request. 
     
 
-
+    The Password Check: Compare the incoming password from the DTO with the PasswordHash stored in the database. (Right now, you can do a direct string comparison like user.PasswordHash != dto.Password. Later on, we can update this to use a secure library like BCrypt). If they don't match, stop and return null.
 
 
 

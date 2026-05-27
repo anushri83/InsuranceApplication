@@ -3,6 +3,7 @@ using Insurance.Application.Interfaces;
 using Insurance.Domain.Interfaces;
 using Insurance.Domain.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using static System.Runtime.InteropServices.JavaScript.JSType;

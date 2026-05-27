@@ -40,7 +40,7 @@ namespace Insurance.Application.Services
                 }
                 
                 if (!BCrypt.Net.BCrypt.Verify(dto.Password, userexist.PasswordHash))
-                {
+                { 
                     return null; // Password does not match
                 }
 

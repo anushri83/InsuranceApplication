@@ -111,7 +111,7 @@ namespace Insurance.Application.Services
                     Pincode = dto.Pincode,
 
                     Role = UserRole.Customer,
-                    PasswordHash = HashPassword(dto.Password),
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -142,7 +142,7 @@ namespace Insurance.Application.Services
                     Pincode = dto.Pincode,
 
                     Role = UserRole.Agent,
-                    PasswordHash = HashPassword(dto.Password),
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -168,7 +168,7 @@ namespace Insurance.Application.Services
                     Email = dto.Email,
 
                     Role = UserRole.Admin,
-                    PasswordHash = HashPassword(dto.Password),
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                     IsActive = true,
                     IsEmailVerified = true,
                     CreatedAt = DateTime.UtcNow

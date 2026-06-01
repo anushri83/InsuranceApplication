@@ -111,7 +111,7 @@ namespace Insurance.Application.Services
                     Pincode = dto.Pincode,
 
                     Role = UserRole.Customer,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                    PasswordHash = HashPassword(dto.Password),
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -142,7 +142,7 @@ namespace Insurance.Application.Services
                     Pincode = dto.Pincode,
 
                     Role = UserRole.Agent,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                    PasswordHash = HashPassword(dto.Password),
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -168,7 +168,7 @@ namespace Insurance.Application.Services
                     Email = dto.Email,
 
                     Role = UserRole.Admin,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                    PasswordHash = HashPassword(dto.Password),
                     IsActive = true,
                     IsEmailVerified = true,
                     CreatedAt = DateTime.UtcNow
@@ -272,11 +272,11 @@ namespace Insurance.Application.Services
 
         // Simple placeholder helper for password hashing logic
         private string HashPassword(string password)=>
-             Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(password));
-        
+            BCrypt.Net.BCrypt.HashPassword(password);
+
 
         private bool VerifyPassword(string inputPassword, string storedHash) =>
-            HashPassword(inputPassword) == storedHash;
+            BCrypt.Net.BCrypt.Verify(inputPassword, storedHash);
 
         private async Task ValidateNewUserRulesAsync(User user, string plainTextPassword)
         {

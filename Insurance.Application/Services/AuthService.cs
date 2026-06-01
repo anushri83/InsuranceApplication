@@ -21,7 +21,8 @@ namespace Insurance.Application.Services
     public  class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
-        // The IConfiguration interface allows you to access configuration settings from appsettings.json or environment variables, which is essential for retrieving JWT secret keys and token expiration settings.
+        // The IConfiguration interface allows you to access configuration settings from appsettings.json or environment variables,
+        // which is essential for retrieving JWT secret keys and token expiration settings.
         private readonly IConfiguration _configuration;
         public AuthService(IUserRepository userRepository, IConfiguration configuration)
         {
@@ -68,7 +69,7 @@ namespace Insurance.Application.Services
                     new System.Security.Claims.Claim(ClaimTypes.Role, role.ToString())
                 };
 
-                //  Convert our text SecretKey into a encrypted byte array that required fo rtoken signature
+                //  Convert our text SecretKey into a encrypted byte array that required for token signature
                 var Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
                 //Actaully digitaly sign the token using the encrypted key and specify the hashing algorithm (HMAC SHA256) to ensure the token's integrity and authenticity

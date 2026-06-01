@@ -2,6 +2,7 @@
 using Insurance.Application.Interfaces;
 using Insurance.Domain.Interfaces;
 using Insurance.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Insurance.API.Controllers;
 
+[Authorize] // Ensures only authenticated users can access these endpoints
 [ApiController] // Tells .NET this class handles API requests
 [Route("api/[controller]")] // Sets the URL to: api/policy
 public class UserController : ControllerBase
@@ -23,6 +25,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin")] // Only Admins can access this endpoint
     public async Task<IActionResult> GetAllUsersAsync()
     {
         try
@@ -37,6 +40,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("user/{UserId}")]
+    [Authorize]
     public async Task<IActionResult> GetUsersByIdAsync(int UserId)
     {
         try
@@ -51,6 +55,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("email/{email}")]
+    [Authorize(Roles = "Admin,Agent")]
     public async Task<IActionResult> GetUserByEmailAsync(string email)
     {
         try
@@ -66,7 +71,8 @@ public class UserController : ControllerBase
 
 
     [HttpGet("role/{role}")]
-        public async Task<IActionResult> GetUsersByRoleAsync(UserRole role)
+    [Authorize(Roles = "Admin,Agent")]
+    public async Task<IActionResult> GetUsersByRoleAsync(UserRole role)
     {
         try
         {
@@ -81,6 +87,7 @@ public class UserController : ControllerBase
 
 
     [HttpPost("register/customer")]
+    [AllowAnonymous] // Allows unauthenticated users to access this endpoint
     public async Task<IActionResult> RegisterCustomer([FromBody] CreateCustomerDto dto)
     {
         try
@@ -104,6 +111,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("Register/Agent")]
+    [Authorize(Roles = "Agent")]
     public async Task<IActionResult> RegisterAgent(CreateAgentDto dto)
     {
         try
@@ -125,6 +133,7 @@ public class UserController : ControllerBase
         }
     }
     [HttpPost("Register/Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> RegisterAdmin(CreateAdminDto dto)
     {
         try
@@ -147,6 +156,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("update-user")]
+    [Authorize]
     public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserDto dto)
     {
         try
@@ -165,6 +175,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("change-password")]
+    [Authorize]
     public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordDto dto)
     {
         try
@@ -183,6 +194,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("forgot-password")]
+    [AllowAnonymous]
     public async Task<IActionResult> ForgotPassword(string Email)
     {
         var user = await _userService.GetUserByEmailAsync(Email);
@@ -198,6 +210,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("reset-password")]
+    [AllowAnonymous]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
     {
         var user = await _userService.GetUserByEmailAsync(dto.Email);
@@ -221,6 +234,7 @@ public class UserController : ControllerBase
 
 
     [HttpDelete]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteUserAsync(int  userId)
     {
         try

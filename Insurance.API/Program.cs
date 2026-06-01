@@ -10,16 +10,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 
-
-
 // This is the entry point of your ASP.NET Core Web API application
 var builder = WebApplication.CreateBuilder(args);
 
 
-// --- STEP A: Add Services to the Container ---
-
 // 1. Add API Documentation (OpenAPI/Swagger)
-builder.Services.AddOpenApi();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler=System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles; //avoid infinite loops in JSON serialization when you have circular references in your models
@@ -51,12 +46,16 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 // This is needed for Swagger to discover your API endpoints
 builder.Services.AddEndpointsApiExplorer();
 
+
 // This adds the Swagger generator, which creates the OpenAPI specification for your API
 builder.Services.AddSwaggerGen();
 
+
 //  Fetch JWT configurations from appsettings.json
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var secretKey = jwtSettings["SecretKey"];
+var secretKey = jwtSettings["SecretKey"]
+    ?? throw new InvalidOperationException("JWT Secret Key is missing.");
+
 
 //Adds authentication functionality to the application.
 builder.Services.AddAuthentication(options =>
@@ -65,6 +64,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
+
 
 //Adds JWT token validation middleware.
 .AddJwtBearer(options =>
@@ -84,10 +84,19 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
 // This is where you configure the middleware that will handle HTTP requests
 var app = builder.Build();
 
-app.UseRouting();
+// Only enable Swagger in development mode for security reasons
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+// Redirect HTTP requests to HTTPS for better security
+app.UseHttpsRedirection();
 
 //every request hitting your API goes through a security checkpoint before it ever hits your controller files
 // MUST BE IN THIS EXACT ORDER
@@ -96,20 +105,6 @@ app.UseAuthorization();  // Checks WHAT the user can do (Checks their role)
 
 // This line tells the API to find your controllers
 app.MapControllers();
-
-// Only enable Swagger in development mode for security reasons
-if (app.Environment.IsDevelopment())  
-{
-    app.MapOpenApi();  
-    app.UseSwagger(); 
-    app.UseSwaggerUI();
-}
-
-// Redirect HTTP requests to HTTPS for better security
-app.UseHttpsRedirection();
-
-// This is where you would add authentication middleware 
-app.UseAuthorization();   
 
 // Finally, run the application
 app.Run();

@@ -1,10 +1,12 @@
 ﻿using Insurance.Application.Interfaces;
 using Insurance.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Insurance.API.Controllers;
 
+[Authorize] // Ensures only authenticated users can access these endpoints
 [ApiController] // Tells .NET this class handles API requests
 [Route("api/[controller]")] // Sets the URL to: api/policy
 
@@ -17,6 +19,7 @@ public class PolicyController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetPoliciesAsync()
     {
         try
@@ -32,6 +35,7 @@ public class PolicyController : ControllerBase
     }
 
     [HttpGet("policy/{PolicyId}")]
+    [Authorize]
     public async Task<IActionResult> GetPolicyByPolicyIdAsync(int PolicyId)
     {
         try
@@ -41,13 +45,14 @@ public class PolicyController : ControllerBase
         }
         catch (Exception ex)
         {
-            return  NotFound(ex);
+            return  NotFound($"Policy with ID {PolicyId} was not found.");
         }
         
     }
 
 
     [HttpGet("active")]
+    [Authorize]
     public async Task<IActionResult> GetActivePoliciesAsync()
     {
         try
@@ -62,6 +67,7 @@ public class PolicyController : ControllerBase
     }
 
     [HttpGet("inactive")]
+    [Authorize(Roles = "Admin,Agent")]
     public async Task<IActionResult> GetInActivePoliciesAsync()
     {
         try
@@ -76,6 +82,7 @@ public class PolicyController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddPolicyAsync(Policy policy)
     {
         try
@@ -99,6 +106,7 @@ public class PolicyController : ControllerBase
     }
 
     [HttpPut]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdatePolicyAsync(Policy policy)
     {
         try
@@ -118,6 +126,7 @@ public class PolicyController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeletePolicyAsync(int policyId)
     {
         try

@@ -1,12 +1,14 @@
 ﻿using Insurance.Application.DTOs.ClaimDTO;
 using Insurance.Application.Interfaces;
 using Insurance.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Insurance.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Authorize] // Ensures only authenticated users can access these endpoints
+    [ApiController] // Tells .NET this class handles API requests
+    [Route("api/[controller]")] // Sets the URL to: api/policy
     public class ClaimsController : ControllerBase
     {
         private readonly IClaimService _claimService;
@@ -17,6 +19,7 @@ namespace Insurance.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin,Agent")]
         public async Task<IActionResult> GetAllClaimsAsync()
         {
             var claims = await _claimService.GetAllClaimsAsync();
@@ -25,6 +28,7 @@ namespace Insurance.API.Controllers
 
 
         [HttpGet("claim/{ClaimId}")]
+        [Authorize]
         public async Task<IActionResult> GetClaimByClaimIdAsync(int ClaimId)
         {
             try
@@ -44,6 +48,7 @@ namespace Insurance.API.Controllers
 
 
         [HttpGet("user/{UserId}")]
+        [Authorize]
         public async Task<IActionResult> GetClaimsByUserIdAsync(int UserId)
         {
             try
@@ -61,7 +66,8 @@ namespace Insurance.API.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> AddClaimAsync([FromBody] CreateClaimDto dto)
         {
             try
@@ -88,34 +94,36 @@ namespace Insurance.API.Controllers
             }
         }
 
-        [HttpPut("")]
-        public async Task UpdateClaimAsync(UpdateClaimDto dto)
+        [HttpPut("update")]
+        [Authorize(Roles = "Admin,Agent")]
+        public async Task<IActionResult> UpdateClaimAsync([FromBody] UpdateClaimDto dto)
         {
             try
             {
                 if (!ModelState.IsValid)    // Checks if the incoming data is valid based on the model's data annotations
                 {
-                    BadRequest(ModelState);
+                    return BadRequest(ModelState);
                 }
                 await _claimService.UpdateClaimAsync(dto);
-                Ok("Claim record updated.");
+                return Ok("Claim record updated.");
             }
             catch (KeyNotFoundException ex)
             {
-                NotFound(ex.Message);
+                return NotFound(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
-                BadRequest(ex.Message);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                StatusCode(500, $"An error occurred: {ex.Message}");
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
 
         //(Admin action)
         [HttpPut("{ClaimId}/approve")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Approve(int ClaimId)
         {
             try
@@ -136,6 +144,7 @@ namespace Insurance.API.Controllers
 
         // (Admin action)
         [HttpPut("{ClaimId}/reject")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RejectClaimAsync(int ClaimId, [FromBody] string reason)
         {
             try
@@ -155,6 +164,7 @@ namespace Insurance.API.Controllers
 
         
         [HttpDelete("{ClaimId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteClaimAsync(int ClaimId)
         {
             try

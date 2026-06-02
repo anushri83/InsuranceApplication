@@ -22,7 +22,7 @@ namespace Insurance.Application.Services
     {
         private readonly IUserRepository _userRepository;
         // The IConfiguration interface allows you to access configuration settings from appsettings.json or environment variables,
-        // which is essential for retrieving JWT secret keys and token expiration settings.
+        
         private readonly IConfiguration _configuration;
         public AuthService(IUserRepository userRepository, IConfiguration configuration)
         {

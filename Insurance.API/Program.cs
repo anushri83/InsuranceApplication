@@ -50,6 +50,8 @@ builder.Services.AddEndpointsApiExplorer();
 // This adds the Swagger generator, which creates the OpenAPI specification for your API
 builder.Services.AddSwaggerGen();
 
+// Add this under your other builder.Services definitions
+builder.Services.AddMemoryCache();
 
 //  Fetch JWT configurations from appsettings.json
 var jwtSettings = builder.Configuration.GetSection("Jwt");

@@ -10,13 +10,15 @@ namespace Insurance.Application.Services
 {
     public class CustomerPolicyService: ICustomerPolicyService
     {
+        private readonly IUserRepository _userRepository;
         private readonly ICustomerPolicyRepository _customerPolicyRepository;
         private readonly IPolicyRepository _policyRepository;
 
-        public CustomerPolicyService(ICustomerPolicyRepository customerPolicyRepository , IPolicyRepository policyRepository)
+        public CustomerPolicyService(ICustomerPolicyRepository customerPolicyRepository , IPolicyRepository policyRepository, IUserRepository userRepository)
         {
             _customerPolicyRepository = customerPolicyRepository;
             _policyRepository = policyRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<IEnumerable<CustomerPolicyResponseDto>> GetAllCustomerPoliciesAsync()
@@ -133,13 +135,15 @@ namespace Insurance.Application.Services
         {
             try
             {
+                var user= await _userRepository.GetUserByIdAsync(dto.UserId);
                 var policy = await _policyRepository.GetPolicyByPolicyIdAsync(dto.PolicyId);
 
-                if (policy == null)
+                if (policy == null || user == null)
                 {
-                    throw new KeyNotFoundException($"Policy with ID {dto.PolicyId} does not exist.");
+                    throw new KeyNotFoundException($"Policy with ID {dto.PolicyId} or User with ID {dto.UserId} does not exist.");
                 }
 
+                decimal premiumAmount = CalculateAgeRiskPremium(policy.PremiumAmount, user.DateOfBirth); // Start with base premium
                 var customerPolicy = new CustomerPolicy
                 {
                     CustomerPolicyId = 0,
@@ -149,6 +153,7 @@ namespace Insurance.Application.Services
                     StartDate = DateTime.Now,
                     EndDate = DateTime.Now.AddMonths(policy.DurationInMonth),
                     Status = CustomerPolicyStatus.Active,
+                    PremiumAmount = premiumAmount,
                     CreatedAt = DateTime.Now
                 };
 
@@ -260,7 +265,28 @@ namespace Insurance.Application.Services
             return records.Select(MapToResponseDto).ToList(); //select acts as a for each loop 
         }
 
+        private decimal CalculateAgeRiskPremium(decimal basePremium, DateTime? dateOfBirth)
+        {
+            try
+            {
+                if (!dateOfBirth.HasValue)
+                {
+                    return basePremium;
+                }
+                var today = DateTime.Today;
+                int age = today.Year - dateOfBirth.Value.Year;
+                if (age > 40)
+                {
+                    return basePremium + (basePremium * 0.20m);
+                }
+                return basePremium;
+            }
+            catch (Exception)
+            {
 
+                throw;
+            }
+        }
 
     }
 }

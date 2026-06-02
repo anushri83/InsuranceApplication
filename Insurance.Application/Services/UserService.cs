@@ -271,7 +271,7 @@ namespace Insurance.Application.Services
 
 
         // Simple placeholder helper for password hashing logic
-        private string HashPassword(string password)=>
+        public string HashPassword(string password)=>
             BCrypt.Net.BCrypt.HashPassword(password);
 
 

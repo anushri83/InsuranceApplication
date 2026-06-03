@@ -13,12 +13,14 @@ namespace Insurance.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly ICustomerPolicyRepository _customerPolicyRepository;
         private readonly IPolicyRepository _policyRepository;
+        private readonly IClaimRepository _claimRepository;
 
-        public CustomerPolicyService(ICustomerPolicyRepository customerPolicyRepository , IPolicyRepository policyRepository, IUserRepository userRepository)
+        public CustomerPolicyService(ICustomerPolicyRepository customerPolicyRepository , IPolicyRepository policyRepository, IUserRepository userRepository, IClaimRepository claimRepository)
         {
             _customerPolicyRepository = customerPolicyRepository;
             _policyRepository = policyRepository;
             _userRepository = userRepository;
+            _claimRepository = claimRepository;
         }
 
         public async Task<IEnumerable<CustomerPolicyResponseDto>> GetAllCustomerPoliciesAsync()
@@ -280,6 +282,56 @@ namespace Insurance.Application.Services
                     return basePremium + (basePremium * 0.20m);
                 }
                 return basePremium;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<decimal> RenewPolicyAsync(int verifiedUserId, int expiringCustomerPolicyId)
+        {
+            try
+            {
+                var expiringCustomerPolicy = await _customerPolicyRepository.GetCustomerPolicyByIdAsync(expiringCustomerPolicyId);
+                if(expiringCustomerPolicy == null || expiringCustomerPolicy.UserId != verifiedUserId)
+                {
+                    throw new KeyNotFoundException($"Customer policy with ID {expiringCustomerPolicyId} not found for user ID {verifiedUserId}.");
+                }
+                var user = await _userRepository.GetUserByIdAsync(verifiedUserId);
+                if(user == null)
+                {
+                    throw new KeyNotFoundException($"User with ID {verifiedUserId} not found.");
+                }
+                var calculatedPremium = CalculateAgeRiskPremium(expiringCustomerPolicy.PremiumAmount, user.DateOfBirth);
+
+                var hasClaims = await _claimRepository.GetClaimsByCustomerPolicyIdAsync(expiringCustomerPolicyId);
+
+                if (!hasClaims)
+                {
+                    calculatedPremium -= (calculatedPremium * 0.20m);
+                }
+
+                expiringCustomerPolicy.Status = CustomerPolicyStatus.Expired;
+                expiringCustomerPolicy.UpdatedAt = DateTime.UtcNow;
+                await _customerPolicyRepository.UpdateCustomerPolicyAsync(expiringCustomerPolicy);
+
+                var renewedPolicy = new CustomerPolicy
+                {
+                    CustomerPolicyId = 0,
+                    UserId = verifiedUserId,
+                    PolicyId = expiringCustomerPolicy.PolicyId,
+                    AgentId = expiringCustomerPolicy.AgentId,
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddMonths(expiringCustomerPolicy.Policy.DurationInMonth),
+                    Status = CustomerPolicyStatus.Active, // New one starts as active
+                    PremiumAmount = calculatedPremium,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _customerPolicyRepository.AddCustomerPolicyAsync(renewedPolicy);
+
             }
             catch (Exception)
             {

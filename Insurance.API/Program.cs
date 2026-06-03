@@ -1,3 +1,4 @@
+using Insurance.Api.BackgroundServices;
 using Insurance.Application.Interfaces;
 using Insurance.Application.Services;
 using Insurance.Domain.Interfaces;
@@ -40,6 +41,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICustomerPolicyService, CustomerPolicyService>();
 builder.Services.AddScoped<IClaimService, ClaimService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddHostedService<PolicyExpiryWorker>();
 
 // --- STEP B: Configure the HTTP Pipeline ---
 

@@ -13,6 +13,8 @@ namespace Insurance.Domain.Interfaces
         // Retrieves all claims belonging to a specific customer by joining through their policies
         Task<IEnumerable<Claim>> GetClaimsByUserIdAsync(int userId);
 
+        Task GetClaimsByCustomerPolicyIdAsync(int expiringCustomerPolicyId);
+
         // Adds a new claim record to the database
         Task AddClaimAsync(Claim claim);
 
@@ -21,6 +23,6 @@ namespace Insurance.Domain.Interfaces
 
         // Permanently removes a claim record from the system
         Task DeleteClaimAsync(int claimId);
-        Task GetClaimsByCustomerPolicyIdAsync(int expiringCustomerPolicyId);
+
     }
 }

@@ -16,7 +16,7 @@ namespace Insurance.Application.Interfaces
 
         Task<IEnumerable<AgentCustomerResponseDto>> GetCustomersByAgentIdAsync(int agentId);
 
-        Task AddCustomerPolicyAsync(PurchasePolicyDto dto);
+        Task AddCustomerPolicyAsync(int verifiedUserId, PurchasePolicyDto dto);
 
         Task UpdateCustomerPolicyAsync(UpdateCustomerPolicyStatusDto dto);
 

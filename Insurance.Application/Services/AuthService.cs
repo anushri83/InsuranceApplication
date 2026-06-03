@@ -80,7 +80,7 @@ namespace Insurance.Application.Services
                     issuer: JWTSetting["Issuer"],
                     audience: JWTSetting["Audience"],
                     claims: claims,
-                    expires: DateTime.Now.AddMinutes(int.Parse(JWTSetting["DurationInMinutes"] ?? "60")),
+                    expires: DateTime.UtcNow.AddMinutes(int.Parse(JWTSetting["DurationInMinutes"] ?? "60")),
                     signingCredentials: creds
                 );
 

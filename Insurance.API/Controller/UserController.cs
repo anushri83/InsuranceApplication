@@ -166,7 +166,7 @@ public class UserController : ControllerBase
         try
         {
             await _userService.UpdateUserAsync(dto);
-            return Ok($"User Updated successfully at {DateTime.Now}");
+            return Ok($"User Updated successfully at {DateTime.UtcNow}");
         }
         catch (ArgumentException ex)
         {
@@ -185,7 +185,7 @@ public class UserController : ControllerBase
         try
         {
             await _userService.ChangePasswordAsync(dto);
-            return Ok($"Password Changed successfully at {DateTime.Now}");
+            return Ok($"Password Changed successfully at {DateTime.UtcNow}");
         }
         catch (ArgumentException ex)
         {
@@ -254,7 +254,7 @@ public class UserController : ControllerBase
         // if (!isTokenValid) return BadRequest("Invalid or expired token.");
 
         user.PasswordHash = _userService.HashPassword(dto.NewPassword);
-        user.UpdatedAt = DateTime.Now;
+        user.UpdatedAt = DateTime.UtcNow;
 
 
         await _userRepository.UpdateUserAsync(user); // Push changes down to repository
@@ -270,7 +270,7 @@ public class UserController : ControllerBase
         try
         {
             await _userService.DeleteUserAsync(userId);
-            return Ok($"User Deleted successfully at {DateTime.Now}");
+            return Ok($"User Deleted successfully at {DateTime.UtcNow}");
         }
         catch (ArgumentException ex)
         {

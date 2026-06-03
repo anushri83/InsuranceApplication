@@ -8,7 +8,7 @@ namespace Insurance.Application.DTOs.UserDTO
     public class ChangePasswordDto
     {
         [Required]
-        public int UserId { get; set; }
+        public string Email { get; set; }
 
         [Required]
         public string OldPassword { get; set; } = string.Empty;

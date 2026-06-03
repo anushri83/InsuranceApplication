@@ -126,7 +126,16 @@ public class CustomerPolicyController : ControllerBase
             {
                 return BadRequest(ModelState);
             }
-            await _customerPolicyService.AddCustomerPolicyAsync(dto);
+            // Get the user ID from the JWT token claims
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized("User identity token is missing or corrupted.");
+            }
+
+            
+            int verifiedUserId = int.Parse(userIdClaim);
+            await _customerPolicyService.AddCustomerPolicyAsync(verifiedUserId, dto);
             return Ok("Customer policy added successfully.");
         }
         catch (ArgumentException ex)

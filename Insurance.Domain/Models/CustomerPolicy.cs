@@ -29,9 +29,9 @@ public class CustomerPolicy
     [Required]
     [Column(TypeName = "decimal(18,2)")]
     public decimal PremiumAmount { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public DateTime? UpdatedAt { get; set; } = DateTime.Now;
+    public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation properties
     public User? User { get; set; } // The Customer object

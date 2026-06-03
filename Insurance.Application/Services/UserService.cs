@@ -205,7 +205,7 @@ namespace Insurance.Application.Services
                 existingUser.City = dto.City;
                 existingUser.State = dto.State;
                 existingUser.Pincode = dto.Pincode;
-                existingUser.UpdatedAt = DateTime.Now;
+                existingUser.UpdatedAt = DateTime.UtcNow;
 
                 await _userRepository.UpdateUserAsync(existingUser);
             }
@@ -219,11 +219,11 @@ namespace Insurance.Application.Services
         {
             try
             {
-                User existingUser = await _userRepository.GetUserByIdAsync(dto.UserId);
+                User existingUser = await _userRepository.GetUserByEmailAsync(dto.Email);
 
                 if (existingUser == null)
                 {
-                    throw new KeyNotFoundException($"User with ID {dto.UserId} not found.");
+                    throw new KeyNotFoundException($"User with email {dto.Email} not found.");
                 }
 
                 bool isOldPasswordCorrect =
@@ -240,7 +240,7 @@ namespace Insurance.Application.Services
                 }
 
                 existingUser.PasswordHash = HashPassword(dto.NewPassword);
-                existingUser.UpdatedAt = DateTime.Now;
+                existingUser.UpdatedAt = DateTime.UtcNow;
 
                 await _userRepository.UpdateUserAsync(existingUser);
             }
@@ -288,7 +288,7 @@ namespace Insurance.Application.Services
             }
 
             // Age check (Only apply to Customers, since Admins/Agents might not have DoB populated yet)
-            if (user.Role == UserRole.Customer && user.DateOfBirth > DateTime.Now.AddYears(-18))
+            if (user.Role == UserRole.Customer && user.DateOfBirth > DateTime.UtcNow.AddYears(-18))
             {
                 throw new InvalidOperationException("User must be at least 18 years old.");
             }

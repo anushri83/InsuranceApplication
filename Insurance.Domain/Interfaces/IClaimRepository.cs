@@ -21,7 +21,6 @@ namespace Insurance.Domain.Interfaces
 
         // Permanently removes a claim record from the system
         Task DeleteClaimAsync(int claimId);
-
-        
+        Task GetClaimsByCustomerPolicyIdAsync(int expiringCustomerPolicyId);
     }
 }

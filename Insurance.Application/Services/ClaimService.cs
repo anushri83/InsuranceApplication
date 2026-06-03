@@ -89,7 +89,7 @@ namespace Insurance.Application.Services
                     throw new InvalidOperationException("Cannot file claim: The associated Customer Policy is not active.");
                 }
                 // Check 1: Date Validation
-                if (DateTime.Now < customerpolicy.StartDate || DateTime.Now > customerpolicy.EndDate)
+                if (DateTime.UtcNow < customerpolicy.StartDate || DateTime.UtcNow > customerpolicy.EndDate)
                 {
                     throw new InvalidOperationException("Cannot file a claim on an inactive or expired policy.");
                 }
@@ -112,7 +112,7 @@ namespace Insurance.Application.Services
                     CustomerPolicyId = dto.CustomerPolicyId,
                     ClaimAmount = dto.ClaimAmount,
                     Status = ClaimStatus.Pending,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 };
                 await _claimRepository.AddClaimAsync(claim);
             }
@@ -138,7 +138,7 @@ namespace Insurance.Application.Services
                     CustomerPolicyId = existingclaim.CustomerPolicyId,
                     ClaimAmount = dto.ClaimAmount,
                     Status = (ClaimStatus)dto.Status,
-                    UpdatedAt = DateTime.Now
+                    UpdatedAt = DateTime.UtcNow
                 };
                 await _claimRepository.UpdateClaimAsync(claim);
             }

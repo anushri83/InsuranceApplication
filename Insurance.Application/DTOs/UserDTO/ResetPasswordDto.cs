@@ -11,7 +11,7 @@ namespace Insurance.Application.DTOs.UserDTO
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        public string Token { get; set; } = string.Empty; // Holds the OTP or link token
+        public string OTP { get; set; } = string.Empty; // Holds the OTP or link token
 
         [Required, MinLength(8)]
         public string NewPassword { get; set; } = string.Empty;

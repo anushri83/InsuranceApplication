@@ -1,0 +1,7 @@
+# Use this workspace to collaborate
+workspace:
+  id: fe84b60b-cb55-4554-8afc-f70b9a41c28a
+
+localResources:
+  specs:
+    - ..\Insurance.API\obj\Debug\net10.0\EndpointInfo\Insurance.API.json

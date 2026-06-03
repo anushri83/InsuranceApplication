@@ -1,11 +1,13 @@
 ﻿using Insurance.Application.DTOs.CustomerPolicyDTO;
 using Insurance.Application.Interfaces;
 using Insurance.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Insurance.API.Controllers;
 
+[Authorize] // Ensures only authenticated users can access these endpoints
 [ApiController] // Tells .NET this class handles API requests
 [Route("api/[controller]")] // Sets the URL to: api/policy
 
@@ -19,6 +21,7 @@ public class CustomerPolicyController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllCustomerPoliciesAsync()
     {
         try
@@ -34,6 +37,7 @@ public class CustomerPolicyController : ControllerBase
     }
 
     [HttpGet("customePolicy/{customerPolicyId}")]
+    [Authorize]
     public async Task<IActionResult> GetCustomerPolicyByIdAsync(int customerPolicyId)
     {
         try
@@ -48,6 +52,7 @@ public class CustomerPolicyController : ControllerBase
     }
 
     [HttpGet("user/{userId}")]
+    [Authorize]
     public async Task<IActionResult> GetByUserIdAsync(int userId)
     {
         try
@@ -62,6 +67,7 @@ public class CustomerPolicyController : ControllerBase
     }
 
     [HttpGet("agent/{agentId}")]
+    [Authorize(Roles = "Admin,Agent")]
     public async Task<IActionResult> GetByAgentIdAsync(int agentId)
     {
         try
@@ -76,6 +82,7 @@ public class CustomerPolicyController : ControllerBase
     }
 
     [HttpGet("agent/{agentId}/customers")]
+    [Authorize(Roles = "Admin,Agent")]
     public async Task<IActionResult> GetCustomersByAgentIdAsync(int agentId)
     {
         try
@@ -90,6 +97,7 @@ public class CustomerPolicyController : ControllerBase
     }
 
     [HttpGet("{agentId}/Commission")]
+    [Authorize(Roles = "Admin,Agent")]
     public async Task<IActionResult> CalculateAgentCommissionAsync(int agentId)
     {
         try
@@ -108,7 +116,14 @@ public class CustomerPolicyController : ControllerBase
         }
     }
 
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred calculating commission: {ex.Message}");
+        }
+    }
+
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> AddCustomerPolicyAsync([FromBody] PurchasePolicyDto dto)
     {
         try
@@ -117,7 +132,16 @@ public class CustomerPolicyController : ControllerBase
             {
                 return BadRequest(ModelState);
             }
-            await _customerPolicyService.AddCustomerPolicyAsync(dto);
+            // Get the user ID from the JWT token claims
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized("User identity token is missing or corrupted.");
+            }
+
+            
+            int verifiedUserId = int.Parse(userIdClaim);
+            await _customerPolicyService.AddCustomerPolicyAsync(verifiedUserId, dto);
             return Ok("Customer policy added successfully.");
         }
         catch (ArgumentException ex)
@@ -131,6 +155,7 @@ public class CustomerPolicyController : ControllerBase
     }
 
     [HttpPut]
+    [Authorize(Roles = "Admin,Agent")]
     public async Task<IActionResult> UpdateCustomerPolicyAsync([FromBody] UpdateCustomerPolicyStatusDto dto)
     {
         try
@@ -149,6 +174,7 @@ public class CustomerPolicyController : ControllerBase
     }
 
     [HttpDelete("{customerPolicyId}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteCustomerPolicyAsync(int customerPolicyId)
     {
         try

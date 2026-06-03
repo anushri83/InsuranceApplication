@@ -24,5 +24,7 @@ public interface IUserService
     Task ChangePasswordAsync(ChangePasswordDto dto);
 
     Task DeleteUserAsync(int userId);
+
+    public string HashPassword(string password);
 }
 

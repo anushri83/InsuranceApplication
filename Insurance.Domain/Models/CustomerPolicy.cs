@@ -25,7 +25,13 @@ public class CustomerPolicy
     public DateTime EndDate { get; set; }
 
     public CustomerPolicyStatus Status { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    [Required]
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal PremiumAmount { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; } = DateTime.Now;
 

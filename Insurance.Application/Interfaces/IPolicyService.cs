@@ -12,4 +12,5 @@ public interface IPolicyService
     Task DeletePolicyAsync(int id);
     Task<IEnumerable<Policy>> GetActivePoliciesAsync();
     Task<IEnumerable<Policy>> GetInActivePoliciesAsync();
+
 }

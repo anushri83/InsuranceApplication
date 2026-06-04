@@ -1,0 +1,144 @@
+﻿using Insurance.Application.Interfaces;
+using Insurance.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Insurance.API.Controllers;
+
+[Authorize] // Ensures only authenticated users can access these endpoints
+[ApiController] // Tells .NET this class handles API requests
+[Route("api/[controller]")] // Sets the URL to: api/policy
+
+public class PolicyController : ControllerBase
+{
+    private readonly IPolicyService _policyService;
+    public PolicyController(IPolicyService policyService)
+    {
+        _policyService = policyService;
+    }
+
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetPoliciesAsync()
+    {
+        try
+        {
+            var policies = await _policyService.GetAllPoliciesAsync();
+            return Ok(policies); // Returns HTTP 200 with the data
+        }
+        catch (Exception ex)
+        {
+            // If the database is down, this will catch the error
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
+
+    [HttpGet("policy/{PolicyId}")]
+    [Authorize]
+    public async Task<IActionResult> GetPolicyByPolicyIdAsync(int PolicyId)
+    {
+        try
+        {
+            var policy = await _policyService.GetPolicyByPolicyIdAsync(PolicyId);
+            return Ok(policy);
+        }
+        catch (Exception ex)
+        {
+            return  NotFound($"Policy with ID {PolicyId} was not found.");
+        }
+        
+    }
+
+
+    [HttpGet("active")]
+    [Authorize]
+    public async Task<IActionResult> GetActivePoliciesAsync()
+    {
+        try
+        {
+            var policies = await _policyService.GetActivePoliciesAsync();
+            return Ok(policies);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
+
+    [HttpGet("inactive")]
+    [Authorize(Roles = "Admin,Agent")]
+    public async Task<IActionResult> GetInActivePoliciesAsync()
+    {
+        try
+        {
+            var policies = await _policyService.GetInActivePoliciesAsync();
+            return Ok(policies);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AddPolicyAsync(Policy policy)
+    {
+        try
+        {
+            if (!ModelState.IsValid)    // Checks if the incoming data is valid based on the model's data annotations
+            {
+                return BadRequest(ModelState);
+            }
+            await _policyService.CreatePolicyAsync(policy);
+            return Ok("Policy Added successfully");
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest($"Invalid Data: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+
+    }
+
+    [HttpPut]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdatePolicyAsync(Policy policy)
+    {
+        try
+        {
+            await _policyService.UpdatePolicyAsync(policy);
+            return Ok("Policy Updated successfully");
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest($"Invalid Data: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+
+    }
+
+    [HttpDelete]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeletePolicyAsync(int policyId)
+    {
+        try
+        {
+            await _policyService.DeletePolicyAsync(policyId);
+            return Ok("Policy deleted successfully");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+
+    }
+
+}

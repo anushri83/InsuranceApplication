@@ -1,3 +1,4 @@
+using Insurance.Api.BackgroundServices;
 using Insurance.Application.Interfaces;
 using Insurance.Application.Services;
 using Insurance.Domain.Interfaces;
@@ -12,13 +13,6 @@ using System.Text;
 
 // This is the entry point of your ASP.NET Core Web API application
 var builder = WebApplication.CreateBuilder(args);
-
-
-// 1. Add API Documentation (OpenAPI/Swagger)
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler=System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles; //avoid infinite loops in JSON serialization when you have circular references in your models
-});
 
 
 // 2. Register the DbContext (Connects to Infrastructure)
@@ -40,6 +34,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICustomerPolicyService, CustomerPolicyService>();
 builder.Services.AddScoped<IClaimService, ClaimService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddHostedService<PolicyExpiryWorker>();
+
 
 // --- STEP B: Configure the HTTP Pipeline ---
 
@@ -86,6 +82,27 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
+//  Define a unique name for your security policy configuration
+var allowAngularPolicy = "_allowAngularOrigins";
+
+// Configure the CORS engine to allow your Angular port
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: allowAngularPolicy,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:4200") // 💡 Your Angular default port
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                      });
+});
+
+// Add API Documentation (OpenAPI/Swagger)
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles; //avoid infinite loops in JSON serialization when you have circular references in your models
+});
 
 // This is where you configure the middleware that will handle HTTP requests
 var app = builder.Build();

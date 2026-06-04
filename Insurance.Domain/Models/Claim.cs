@@ -21,6 +21,8 @@ public class Claim
 
     public DateTime? UpdatedAt { get; set; }
 
+    public DateTime? UpdatedAt { get; set; }
+
     // Use ? here because this is a navigation property
     public CustomerPolicy? customerPolicy { get; set; }
 

@@ -178,6 +178,4 @@ public class PolicyService : IPolicyService
                 "Error occurred while fetching inactive policies.", ex);
         }
     }
-
-   
 }

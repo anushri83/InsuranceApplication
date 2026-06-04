@@ -6,8 +6,13 @@
 
 
 
+
 do this Later ->
 
+user controllert -> 
+    // _emailService.SendResetLink(user.Email, generatedToken); 
+    // bool isTokenValid = await _userService.VerifyTokenAsync(user.UserId, dto.Token);
+        // if (!isTokenValid) return BadRequest("Invalid or expired token.");
 
 The single best option recommended by real-world modern architecture is the **Event-Driven Microservice Pattern**.
 

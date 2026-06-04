@@ -7,6 +7,7 @@ namespace Insurance.Application.DTOs.CustomerPolicyDTO
 {
     public class PurchasePolicyDto
     {
+     
 
         [Required]
         public int PolicyId { get; set; } // Which plan they are buying

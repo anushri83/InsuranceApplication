@@ -1,3 +1,4 @@
+using Insurance.Api.BackgroundServices;
 using Insurance.Application.Interfaces;
 using Insurance.Application.Services;
 using Insurance.Domain.Interfaces;
@@ -13,35 +14,33 @@ using System.Text;
 // This is the entry point of your ASP.NET Core Web API application
 var builder = WebApplication.CreateBuilder(args);
 
-
-// 1. Add API Documentation (OpenAPI/Swagger)
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler=System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles; //avoid infinite loops in JSON serialization when you have circular references in your models
-});
-
-
-// 2. Register the DbContext (Connects to Infrastructure)
+//  Register the DbContext (Connects to Infrastructure)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 
-// 3. Register your Application Repositories (Dependency Injection)
+// Register your Application Repositories (Dependency Injection)
 builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICustomerPolicyRepository, CustomerPolicyRepository>();
 builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
 
 
-// 4. Register your Application Services (Dependency Injection)
+// Register your Application Services (Dependency Injection)
 builder.Services.AddScoped<IPolicyService, PolicyService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICustomerPolicyService, CustomerPolicyService>();
 builder.Services.AddScoped<IClaimService, ClaimService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddHostedService<PolicyExpiryWorker>();
 
-// --- STEP B: Configure the HTTP Pipeline ---
+
+//  Add API Documentation (OpenAPI/Swagger)
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles; //avoid infinite loops in JSON serialization when you have circular references in your models
+});
 
 // This is needed for Swagger to discover your API endpoints
 builder.Services.AddEndpointsApiExplorer();
@@ -87,6 +86,22 @@ builder.Services.AddAuthentication(options =>
 });
 
 
+// Define a unique name for your security policy configuration
+var allowAngularPolicy = "_allowAngularOrigins";
+
+// Configure the CORS engine to allow your Angular port
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: allowAngularPolicy,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:4200") // Your Angular default port
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                      });
+});
+
+
 // This is where you configure the middleware that will handle HTTP requests
 var app = builder.Build();
 
@@ -96,6 +111,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Turn on the CORS pipeline mapping right before Authorization!
+app.UseRouting();
+
+app.UseCors(allowAngularPolicy); // Apply the rule here
 
 // Redirect HTTP requests to HTTPS for better security
 app.UseHttpsRedirection();

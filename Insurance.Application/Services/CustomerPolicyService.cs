@@ -290,7 +290,7 @@ namespace Insurance.Application.Services
             }
         }
 
-        public async Task<decimal> RenewPolicyAsync(int verifiedUserId, int expiringCustomerPolicyId)
+        public async Task RenewPolicyAsync(int verifiedUserId, int expiringCustomerPolicyId)
         {
             try
             {
@@ -306,9 +306,9 @@ namespace Insurance.Application.Services
                 }
                 var calculatedPremium = CalculateAgeRiskPremium(expiringCustomerPolicy.PremiumAmount, user.DateOfBirth);
 
-                var hasClaims = await _claimRepository.GetClaimsByCustomerPolicyIdAsync(expiringCustomerPolicyId);
+                var Claims = await _claimRepository.GetClaimsByCustomerPolicyIdAsync(expiringCustomerPolicyId) == null;
 
-                if (!hasClaims)
+                if (!Claims)
                 {
                     calculatedPremium -= (calculatedPremium * 0.20m);
                 }
@@ -335,7 +335,6 @@ namespace Insurance.Application.Services
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

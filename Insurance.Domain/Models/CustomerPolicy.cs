@@ -33,7 +33,6 @@ public class CustomerPolicy
 
     public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    public DateTime? UpdatedAt { get; set; } = DateTime.Now;
 
     // Navigation properties
     public User? User { get; set; } // The Customer object

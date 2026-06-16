@@ -110,6 +110,10 @@ namespace Insurance.Application.Services
                     State = dto.State,
                     Pincode = dto.Pincode,
 
+                    BankName = dto.BankName,
+                    AccountNumber = dto.AccountNumber,
+                    IFSCCode = dto.IFSCCode,
+
                     Role = UserRole.Customer,
                     PasswordHash = HashPassword(dto.Password),
                     IsActive = true,
@@ -136,10 +140,16 @@ namespace Insurance.Application.Services
                     Name = dto.Name,
                     Email = dto.Email,
                     PhoneNumber = dto.PhoneNumber,
+                    Gender = (Gender)dto.Gender,
+                    AadhaarNumber = dto.AadhaarNumber,
                     AddressLine1 = dto.AddressLine1,
                     City = dto.City,
                     State = dto.State,
                     Pincode = dto.Pincode,
+
+                    BankName = dto.BankName,
+                    AccountNumber = dto.AccountNumber,
+                    IFSCCode = dto.IFSCCode,
 
                     Role = UserRole.Agent,
                     PasswordHash = HashPassword(dto.Password),
@@ -166,6 +176,13 @@ namespace Insurance.Application.Services
                     UserId = 0,
                     Name = dto.Name,
                     Email = dto.Email,
+                    PhoneNumber = dto.PhoneNumber,
+                    Gender = (Gender)dto.Gender,
+                    AadhaarNumber = dto.AadhaarNumber,
+                    AddressLine1 = dto.AddressLine1,
+                    City = dto.City,
+                    State = dto.State,
+                    Pincode = dto.Pincode,
 
                     Role = UserRole.Admin,
                     PasswordHash = HashPassword(dto.Password),
@@ -198,9 +215,7 @@ namespace Insurance.Application.Services
                 existingUser.Name = dto.Name;
                 existingUser.PhoneNumber = dto.PhoneNumber;
                 existingUser.DateOfBirth = dto.DateOfBirth;
-                existingUser.Gender = dto.Gender.HasValue
-                    ? (Gender)dto.Gender.Value
-                    : null;
+                existingUser.Gender = (Gender)dto.Gender.Value;
                 existingUser.AddressLine1 = dto.AddressLine1;
                 existingUser.City = dto.City;
                 existingUser.State = dto.State;

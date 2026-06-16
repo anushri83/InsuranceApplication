@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Insurance.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260508180305_YourMigrationName")]
-    partial class YourMigrationName
+    [Migration("20260616184054_UpdateUserTbale")]
+    partial class UpdateUserTbale
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,52 @@ namespace Insurance.Infrastructure.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("CustomerPolicy", b =>
+                {
+                    b.Property<int>("CustomerPolicyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerPolicyId"));
+
+                    b.Property<int?>("AgentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PolicyId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PremiumAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CustomerPolicyId");
+
+                    b.HasIndex("AgentId");
+
+                    b.HasIndex("PolicyId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CustomerPolicies");
+                });
 
             modelBuilder.Entity("Insurance.Domain.Models.Claim", b =>
                 {
@@ -45,46 +91,14 @@ namespace Insurance.Infrastructure.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("ClaimId");
 
                     b.HasIndex("CustomerPolicyId");
 
                     b.ToTable("Claims");
-                });
-
-            modelBuilder.Entity("Insurance.Domain.Models.CustomerPolicy", b =>
-                {
-                    b.Property<int>("CustomerPolicyId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerPolicyId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PolicyId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CustomerPolicyId");
-
-                    b.HasIndex("PolicyId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("CustomerPolicies");
                 });
 
             modelBuilder.Entity("Insurance.Domain.Models.Policy", b =>
@@ -96,7 +110,6 @@ namespace Insurance.Infrastructure.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PolicyId"));
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DurationInMonth")
@@ -110,40 +123,46 @@ namespace Insurance.Infrastructure.Data.Migrations
                     b.Property<decimal>("PremiumAmount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.HasKey("PolicyId");
 
                     b.ToTable("Policies");
                 });
 
-            modelBuilder.Entity("Insurance.Domain.Models.User", b =>
+            modelBuilder.Entity("User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<string>("AadhaarNumber")
                         .IsRequired()
-                        .HasMaxLength(12)
-                        .HasColumnType("nvarchar(12)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AccountNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("AddressLine1")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("BankName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Country")
+                    b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateOfBirth")
+                    b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
@@ -152,6 +171,10 @@ namespace Insurance.Infrastructure.Data.Migrations
 
                     b.Property<int>("Gender")
                         .HasColumnType("int");
+
+                    b.Property<string>("IFSCCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -165,9 +188,7 @@ namespace Insurance.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("PANNumber")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -179,8 +200,7 @@ namespace Insurance.Infrastructure.Data.Migrations
 
                     b.Property<string>("Pincode")
                         .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
@@ -192,39 +212,45 @@ namespace Insurance.Infrastructure.Data.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Insurance.Domain.Models.Claim", b =>
+            modelBuilder.Entity("CustomerPolicy", b =>
                 {
-                    b.HasOne("Insurance.Domain.Models.CustomerPolicy", "customerPolicy")
+                    b.HasOne("User", "Agent")
                         .WithMany()
-                        .HasForeignKey("CustomerPolicyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AgentId");
 
-                    b.Navigation("customerPolicy");
-                });
-
-            modelBuilder.Entity("Insurance.Domain.Models.CustomerPolicy", b =>
-                {
                     b.HasOne("Insurance.Domain.Models.Policy", "Policy")
                         .WithMany()
                         .HasForeignKey("PolicyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Insurance.Domain.Models.User", "User")
+                    b.HasOne("User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Agent");
+
                     b.Navigation("Policy");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Insurance.Domain.Models.Claim", b =>
+                {
+                    b.HasOne("CustomerPolicy", "customerPolicy")
+                        .WithMany()
+                        .HasForeignKey("CustomerPolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("customerPolicy");
                 });
 #pragma warning restore 612, 618
         }

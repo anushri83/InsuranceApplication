@@ -116,11 +116,6 @@ public class CustomerPolicyController : ControllerBase
         }
     }
 
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred calculating commission: {ex.Message}");
-        }
-    }
 
     [HttpPost]
     [Authorize]

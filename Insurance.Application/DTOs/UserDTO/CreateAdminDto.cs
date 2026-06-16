@@ -15,5 +15,22 @@ namespace Insurance.Application.DTOs.UserDTO
 
         [Required]
         public string Password { get; set; } = string.Empty;
+
+        [Required, Phone]
+        public string PhoneNumber { get; set; } = string.Empty;
+
+        [Required]
+        public int Gender { get; set; }
+        [Required]
+        public string AadhaarNumber { get; set; } = string.Empty;
+        [Required]
+        public string AddressLine1 { get; set; }
+        [Required]
+        public string City { get; set; }
+        [Required]
+        public string State { get; set; }
+        [Required]
+        public string Pincode { get; set; }
+
     }
 }

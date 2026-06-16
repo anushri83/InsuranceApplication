@@ -19,9 +19,28 @@ namespace Insurance.Application.DTOs.UserDTO
         [Required, Phone]
         public string PhoneNumber { get; set; } = string.Empty;
 
-        public string? AddressLine1 { get; set; }
-        public string? City { get; set; }
-        public string? State { get; set; }
-        public string? Pincode { get; set; }
+        [Required]
+        public int Gender { get; set; }
+
+        [Required]
+        public string AadhaarNumber { get; set; } = string.Empty;
+        [Required]
+        public string AddressLine1 { get; set; }
+        [Required]
+        public string City { get; set; }
+        [Required]
+        public string State { get; set; }
+
+        [Required]
+        public string Pincode { get; set; }
+
+        [Required]
+        public string BankName { get; set; } = string.Empty;
+
+        [Required]
+        public string AccountNumber { get; set; } = string.Empty;
+
+        [Required]
+        public string IFSCCode { get; set; } = string.Empty;
     }
 }

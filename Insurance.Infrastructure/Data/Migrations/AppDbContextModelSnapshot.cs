@@ -137,12 +137,23 @@ namespace Insurance.Infrastructure.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<string>("AadhaarNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AccountNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("AddressLine1")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("BankName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("City")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -155,8 +166,12 @@ namespace Insurance.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Gender")
+                    b.Property<int>("Gender")
                         .HasColumnType("int");
+
+                    b.Property<string>("IFSCCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -181,12 +196,14 @@ namespace Insurance.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Pincode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
                     b.Property<string>("State")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")

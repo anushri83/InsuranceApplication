@@ -22,14 +22,25 @@ public class User
 
     // Optional for Admins/Agents, Required for Customers (Handled in Service)
     public DateTime? DateOfBirth { get; set; }
-    public Gender? Gender { get; set; }
-    public string? AadhaarNumber { get; set; }
+    public Gender Gender { get; set; }
+    public string AadhaarNumber { get; set; }
     public string? PANNumber { get; set; }
 
-    public string? AddressLine1 { get; set; }
-    public string? City { get; set; }
-    public string? State { get; set; }
-    public string? Pincode { get; set; }
+    public string AddressLine1 { get; set; }
+    public string City { get; set; }
+    public string State { get; set; }
+    public string Pincode { get; set; }
+
+    // Bank Details
+    [MaxLength(100)]
+    public string? BankName { get; set; }
+
+    [MaxLength(30)]
+    public string? AccountNumber { get; set; }
+
+    [MaxLength(20)]
+    public string? IFSCCode { get; set; }
+
 
     // Add this back because your UserService needs it
     public bool IsEmailVerified { get; set; } = false;

@@ -70,6 +70,24 @@ namespace Insurance.Infrastructure.Repositories
             }
         }
 
+        public async Task<Claim> GetClaimsByCustomerPolicyIdAsync(int customerPolicyId)
+        {
+            try
+            {
+                return await _context.Claims
+                    .Include(c => c.customerPolicy)
+                        .ThenInclude(cp => cp.Policy)
+                    .Include(c => c.customerPolicy)
+                        .ThenInclude(cp => cp.User)
+                    .FirstOrDefaultAsync(c => c.CustomerPolicyId == customerPolicyId);
+            }
+            catch (Exception)
+            {
+
+                throw new Exception("Technical error: Could not retrieve claims for this user.");
+            }
+        }
+
         public async Task AddClaimAsync(Claim claim)
         {
             try
@@ -128,9 +146,8 @@ namespace Insurance.Infrastructure.Repositories
             
             }
         }
-          
 
-        
+
     }
 }
    

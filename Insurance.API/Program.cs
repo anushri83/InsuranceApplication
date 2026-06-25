@@ -3,29 +3,26 @@ using Insurance.Application.Interfaces;
 using Insurance.Application.Services;
 using Insurance.Domain.Interfaces;
 using Insurance.Domain.Models;
-using Insurance.Infrastructure.Data; // Access to your DB Context
+using Insurance.Infrastructure.Data;
 using Insurance.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-
 // This is the entry point of your ASP.NET Core Web API application
 var builder = WebApplication.CreateBuilder(args);
 
-//  Register the DbContext (Connects to Infrastructure)
+// Register the DbContext (Connects to Infrastructure)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
-
 
 // Register your Application Repositories (Dependency Injection)
 builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICustomerPolicyRepository, CustomerPolicyRepository>();
 builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
-
 
 // Register your Application Services (Dependency Injection)
 builder.Services.AddScoped<IPolicyService, PolicyService>();
@@ -35,72 +32,55 @@ builder.Services.AddScoped<IClaimService, ClaimService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddHostedService<PolicyExpiryWorker>();
 
-
-//  Add API Documentation (OpenAPI/Swagger)
+// Add API Documentation (OpenAPI/Swagger)
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
-    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles; //avoid infinite loops in JSON serialization when you have circular references in your models
+    // Avoid infinite loops in JSON serialization when you have circular references in your models
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
 });
 
 // This is needed for Swagger to discover your API endpoints
 builder.Services.AddEndpointsApiExplorer();
-
-
-// This adds the Swagger generator, which creates the OpenAPI specification for your API
 builder.Services.AddSwaggerGen();
-
-// Add this under your other builder.Services definitions
 builder.Services.AddMemoryCache();
 
-//  Fetch JWT configurations from appsettings.json
+// Fetch JWT configurations from appsettings.json
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSettings["SecretKey"]
     ?? throw new InvalidOperationException("JWT Secret Key is missing.");
 
-
-//Adds authentication functionality to the application.
+// Adds authentication functionality to the application.
 builder.Services.AddAuthentication(options =>
 {
     // Tells ASP.NET Core to use JWT Bearer Tokens by default.
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-
-
-//Adds JWT token validation middleware.
+// Adds JWT token validation middleware.
 .AddJwtBearer(options =>
 {
-    //Defines rules for validating JWT token.
+    // Defines rules for validating JWT token.
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,  //verifies token creator
-        ValidateAudience = true, //verifies intended application/user
-        ValidateLifetime = true, //checks token expiration
-        ValidateIssuerSigningKey = true, //verifies token signature using SecretKey
+        ValidateIssuer = true,  // verifies token creator
+        ValidateAudience = true, // verifies intended application/user
+        ValidateLifetime = true, // checks token expiration
+        ValidateIssuerSigningKey = true, // verifies token signature using SecretKey
 
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
-        //Converts secret string into encrypted security key.
+        // Converts secret string into encrypted security key.
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
 });
 
-
-// Define a unique name for your security policy configuration
-var allowAngularPolicy = "_allowAngularOrigins";
-
-// Configure the CORS engine to allow your Angular port
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: allowAngularPolicy,
-                      policy =>
-                      {
-                          policy.WithOrigins("http://localhost:4200") // Your Angular default port
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
-                      });
+// Configure the CORS engine to allow your Angular port cleanly
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowAngular", policy =>
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyMethod()
+              .AllowAnyHeader());
 });
-
 
 // This is where you configure the middleware that will handle HTTP requests
 var app = builder.Build();
@@ -112,15 +92,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Turn on the CORS pipeline mapping right before Authorization!
 app.UseRouting();
 
-app.UseCors(allowAngularPolicy); // Apply the rule here
+// Turn on the CORS pipeline mapping right before Authentication/Authorization!
+app.UseCors("AllowAngular");
 
 // Redirect HTTP requests to HTTPS for better security
 app.UseHttpsRedirection();
 
-//every request hitting your API goes through a security checkpoint before it ever hits your controller files
+// Every request hitting your API goes through a security checkpoint
 // MUST BE IN THIS EXACT ORDER
 app.UseAuthentication(); // Checks WHO the user is (Reads the token)
 app.UseAuthorization();  // Checks WHAT the user can do (Checks their role)
